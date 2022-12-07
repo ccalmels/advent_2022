@@ -1,19 +1,19 @@
 use std::io::{BufRead, Lines};
 
-fn resolve<T>(lines: Lines<T>) -> (i32, i32)
+fn resolve<T>(lines: Lines<T>) -> (u32, u32)
 where
     T: BufRead,
 {
     let mut elves = vec![];
-    let mut elve_calories = 0;
+    let mut elve_calories = 0u32;
 
     for line in lines {
         if let Ok(s) = line {
-            if let Ok(calories) = s.parse::<i32>() {
+            if let Ok(calories) = s.parse::<u32>() {
                 elve_calories += calories;
             } else {
                 elves.push(elve_calories);
-                elve_calories = 0;
+                elve_calories = 0u32;
             }
         }
     }
@@ -49,4 +49,12 @@ fn check() {
     assert_eq!(part2, 45000);
 }
 
-inventory::submit! { advent_2022::Day::new(file!(), resolve) }
+fn resolve_string<T>(lines: Lines<T>) -> (String, String)
+where
+    T: BufRead,
+{
+    let solution = resolve(lines);
+    (solution.0.to_string(), solution.1.to_string())
+}
+
+inventory::submit! { advent_2022::Day::new(file!(), resolve_string) }

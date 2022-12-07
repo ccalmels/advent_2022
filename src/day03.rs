@@ -120,4 +120,12 @@ CrZsJsPPZsGzwwsLwLmpwMDw";
     assert_eq!(part2, 70);
 }
 
-inventory::submit! { advent_2022::Day::new(file!(), resolve) }
+fn resolve_string<T>(lines: Lines<T>) -> (String, String)
+where
+    T: BufRead,
+{
+    let solution = resolve(lines);
+    (solution.0.to_string(), solution.1.to_string())
+}
+
+inventory::submit! { advent_2022::Day::new(file!(), resolve_string) }

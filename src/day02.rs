@@ -8,7 +8,7 @@ enum Shape {
 }
 
 impl Shape {
-    fn value(&self) -> i32 {
+    fn value(&self) -> u32 {
         match self {
             Shape::Rock => 1,
             Shape::Paper => 2,
@@ -58,7 +58,7 @@ fn check_shape() {
     assert!(rock != Shape::Paper);
 }
 
-fn round_score_part1(elve: &Shape, strategy: &str) -> i32 {
+fn round_score_part1(elve: &Shape, strategy: &str) -> u32 {
     let me = match strategy {
         "X" => Shape::Rock,
         "Y" => Shape::Paper,
@@ -75,7 +75,7 @@ fn round_score_part1(elve: &Shape, strategy: &str) -> i32 {
     }
 }
 
-fn round_score_part2(elve: &Shape, strategy: &str) -> i32 {
+fn round_score_part2(elve: &Shape, strategy: &str) -> u32 {
     match strategy {
         "X" => elve.looser().value(),
         "Y" => 3 + elve.value(),
@@ -85,11 +85,11 @@ fn round_score_part2(elve: &Shape, strategy: &str) -> i32 {
 }
 
 // First try
-fn _resolve<T>(lines: Lines<T>) -> (i32, i32)
+fn _resolve<T>(lines: Lines<T>) -> (u32, u32)
 where
     T: BufRead,
 {
-    let mut scores: (i32, i32) = (0, 0);
+    let mut scores = (0u32, 0u32);
 
     for line in lines {
         if let Ok(s) = line {
@@ -109,11 +109,11 @@ where
 }
 
 // Using fold
-fn resolve<T>(lines: Lines<T>) -> (i32, i32)
+fn resolve<T>(lines: Lines<T>) -> (u32, u32)
 where
     T: BufRead,
 {
-    lines.fold((0i32, 0i32), |scores, line| {
+    lines.fold((0u32, 0u32), |scores, line| {
         let words = line.as_ref().unwrap().split(" ").collect::<Vec<_>>();
         let elve = match words[0] {
             "A" => Shape::Rock,
@@ -142,4 +142,12 @@ C Z";
     assert_eq!(part2, 12);
 }
 
-inventory::submit! { advent_2022::Day::new(file!(), resolve) }
+fn resolve_string<T>(lines: Lines<T>) -> (String, String)
+where
+    T: BufRead,
+{
+    let solution = resolve(lines);
+    (solution.0.to_string(), solution.1.to_string())
+}
+
+inventory::submit! { advent_2022::Day::new(file!(), resolve_string) }

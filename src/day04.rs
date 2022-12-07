@@ -28,11 +28,11 @@ fn check_overlap() {
     assert_eq!(range_overlap((2, 6), (4, 8)), true);
 }
 
-fn resolve<T>(lines: Lines<T>) -> (i32, i32)
+fn resolve<T>(lines: Lines<T>) -> (u32, u32)
 where
     T: BufRead,
 {
-    lines.fold((0i32, 0i32), |scores, line| {
+    lines.fold((0u32, 0u32), |scores, line| {
         let values: Vec<u32> = line
             .unwrap()
             .split(|c: char| !c.is_ascii_digit())
@@ -41,8 +41,8 @@ where
         let (a, b) = ((values[0], values[1]), (values[2], values[3]));
 
         (
-            scores.0 + range_contains(a, b) as i32,
-            scores.1 + range_overlap(a, b) as i32,
+            scores.0 + range_contains(a, b) as u32,
+            scores.1 + range_overlap(a, b) as u32,
         )
     })
 }
@@ -63,4 +63,12 @@ fn check() {
     assert_eq!(part2, 4);
 }
 
-inventory::submit! { advent_2022::Day::new(file!(), resolve) }
+fn resolve_string<T>(lines: Lines<T>) -> (String, String)
+where
+    T: BufRead,
+{
+    let solution = resolve(lines);
+    (solution.0.to_string(), solution.1.to_string())
+}
+
+inventory::submit! { advent_2022::Day::new(file!(), resolve_string) }

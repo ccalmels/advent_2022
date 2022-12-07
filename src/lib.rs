@@ -6,13 +6,13 @@ use std::path::Path;
 #[derive(Eq, Ord)]
 pub struct Day {
     day_filename: &'static str,
-    resolve: fn(Lines<BufReader<File>>) -> (i32, i32),
+    resolve: fn(Lines<BufReader<File>>) -> (String, String),
 }
 
 impl Day {
     pub const fn new(
         day_filename: &'static str,
-        resolve: fn(Lines<BufReader<File>>) -> (i32, i32),
+        resolve: fn(Lines<BufReader<File>>) -> (String, String),
     ) -> Self {
         Day {
             day_filename,
@@ -30,7 +30,7 @@ impl Day {
             .unwrap()
     }
 
-    pub fn resolve(&self) -> (u32, i32, i32) {
+    fn resolve(&self) -> (u32, String, String) {
         let day_number = self.parse_number();
         let (part1, part2) =
             (self.resolve)(read_lines(format!("./inputs/{:0>2}.txt", day_number)).unwrap());
