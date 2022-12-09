@@ -24,7 +24,7 @@ impl Day {
         self.day_filename
             .strip_suffix(".rs")
             .unwrap()
-            .strip_prefix("src/day")
+            .strip_prefix("src/days/day")
             .unwrap()
             .parse::<u32>()
             .unwrap()
@@ -72,7 +72,7 @@ pub fn resolve_all() {
 }
 
 pub fn resolve_one(day_number: u32) {
-    let module_name = format!("src/day{:0>2}.rs", day_number);
+    let module_name = format!("src/days/day{:0>2}.rs", day_number);
     let (day_number, part1, part2) = inventory::iter::<Day>
         .into_iter()
         .find(|d| d.day_filename == module_name)
