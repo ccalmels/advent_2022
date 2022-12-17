@@ -20,6 +20,15 @@ impl Day {
         }
     }
 
+    fn print(self: &Self) {
+        let (day_number, part1, part2) = self.resolve();
+
+        println!(
+            "day{:0>2}: part1: {:15} part2: {}",
+            day_number, part1, part2
+        );
+    }
+
     fn parse_number(&self) -> u32 {
         self.day_filename
             .strip_suffix(".rs")
@@ -64,22 +73,17 @@ pub fn resolve_all() {
 
     days.sort();
 
-    for day in days {
-        let (day_number, part1, part2) = day.resolve();
-
-        println!("day{:0>2}: part1: {} part2: {}", day_number, part1, part2);
-    }
+    days.iter().for_each(|d| d.print());
 }
 
 pub fn resolve_one(day_number: u32) {
     let module_name = format!("src/days/day{:0>2}.rs", day_number);
-    let (day_number, part1, part2) = inventory::iter::<Day>
+
+    inventory::iter::<Day>
         .into_iter()
         .find(|d| d.day_filename == module_name)
         .unwrap()
-        .resolve();
-
-    println!("day{:0>2}: part1: {} part2: {}", day_number, part1, part2);
+        .print();
 }
 
 inventory::collect!(Day);
