@@ -7,5 +7,6 @@ edition = "2021"
 
 [dependencies]
 automod = "1.0.4"
+clap = { version = "4.0.29", features = ["derive"] }
 inventory = "0.3"
 regex = "1.7.0"
