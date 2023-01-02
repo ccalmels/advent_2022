@@ -89,21 +89,20 @@ fn _resolve<T>(lines: Lines<T>) -> (u32, u32)
 where
     T: BufRead,
 {
-    let mut scores = (0u32, 0u32);
+    let mut scores = (0, 0);
 
     for line in lines {
-        if let Ok(s) = line {
-            let words = s.split(" ").collect::<Vec<_>>();
-            let elve = match words[0] {
-                "A" => Shape::Rock,
-                "B" => Shape::Paper,
-                "C" => Shape::Cissor,
-                _ => panic!(),
-            };
+        let line = line.unwrap();
+        let words = line.split(" ").collect::<Vec<_>>();
+        let elve = match words[0] {
+            "A" => Shape::Rock,
+            "B" => Shape::Paper,
+            "C" => Shape::Cissor,
+            _ => panic!(),
+        };
 
-            scores.0 += round_score_part1(&elve, words[1]);
-            scores.1 += round_score_part2(&elve, words[1]);
-        }
+        scores.0 += round_score_part1(&elve, words[1]);
+        scores.1 += round_score_part2(&elve, words[1]);
     }
     scores
 }
@@ -113,7 +112,7 @@ fn resolve<T>(lines: Lines<T>) -> (u32, u32)
 where
     T: BufRead,
 {
-    lines.fold((0u32, 0u32), |scores, line| {
+    lines.fold((0, 0), |scores, line| {
         let words = line.as_ref().unwrap().split(" ").collect::<Vec<_>>();
         let elve = match words[0] {
             "A" => Shape::Rock,

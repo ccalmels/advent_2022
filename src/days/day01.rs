@@ -5,18 +5,18 @@ where
     T: BufRead,
 {
     let mut elves = vec![];
-    let mut elve_calories = 0u32;
+    let mut elve_calories = 0;
 
     for line in lines {
-        if let Ok(s) = line {
-            if let Ok(calories) = s.parse::<u32>() {
-                elve_calories += calories;
-            } else {
-                elves.push(elve_calories);
-                elve_calories = 0u32;
-            }
+        let line = line.unwrap();
+        if let Ok(calories) = line.parse::<u32>() {
+            elve_calories += calories;
+        } else {
+            elves.push(elve_calories);
+            elve_calories = 0;
         }
     }
+    elves.push(elve_calories);
 
     elves.sort_by(|a, b| b.cmp(a));
 
@@ -38,9 +38,7 @@ fn check() {
 8000
 9000
 
-10000
-
-";
+10000";
     use std::io::Cursor;
 
     let (part1, part2) = resolve(Cursor::new(TEST).lines());

@@ -1,5 +1,6 @@
 use regex::Regex;
 use std::io::{BufRead, Lines};
+use std::collections::HashSet;
 
 fn are_adjacent(a: (i32, i32, i32), b: (i32, i32, i32)) -> bool {
     let x = (b.0 - a.0).abs();
@@ -61,15 +62,9 @@ where
     for line in lines {
         let p = capture_point(&point_regex, &line.unwrap());
 
-        if p.0 > max.0 {
-            max.0 = p.0;
-        }
-        if p.1 > max.1 {
-            max.1 = p.1;
-        }
-        if p.2 > max.2 {
-            max.2 = p.2;
-        }
+        max.0 = i32::max(max.0, p.0);
+        max.1 = i32::max(max.1, p.1);
+        max.2 = i32::max(max.2, p.2);
 
         points.push(p);
     }
@@ -105,9 +100,9 @@ where
     loop {
         let n = external.len();
 
-        spaces.retain(|x| {
-            if is_adjacent(*x, &external) {
-                external.push(*x);
+        spaces.retain(|&x| {
+            if is_adjacent(x, &external) {
+                external.push(x);
                 false
             } else {
                 true
@@ -116,7 +111,7 @@ where
 
         if external.len() == n {
             break;
-        };
+        }
     }
 
     // println!("external/spaces {}/{}", external.len(), spaces.len());

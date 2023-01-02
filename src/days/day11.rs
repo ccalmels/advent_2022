@@ -142,7 +142,7 @@ where
     let supermodulo: u64 = monkeys_2.iter().map(|m| m.divisible.0).product();
 
     for i in 0..len * 10000 {
-        let throws = monkeys_2[i % len].round(|x| x % supermodulo); //_part2(supermodulo);
+        let throws = monkeys_2[i % len].round(|x| x % supermodulo);
 
         for (item, index) in throws {
             monkeys_2[index].items.push(item);

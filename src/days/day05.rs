@@ -1,33 +1,48 @@
 use regex::Regex;
 use std::io::{BufRead, Lines};
 
+#[derive(Clone)]
+struct Crate {
+    part1: Vec<String>,
+    part2: Vec<String>,
+}
+
+impl Crate {
+    fn new() -> Self {
+        Crate {
+            part1: vec![],
+            part2: vec![],
+        }
+    }
+}
+
 fn resolve<T>(lines: Lines<T>) -> (String, String)
 where
     T: BufRead,
 {
     let move_regex = Regex::new(r"^move (\d+) from (\d+) to (\d+)$").unwrap();
-    let mut crates: Vec<(Vec<String>, Vec<String>)> = vec![];
+    let mut crates: Vec<Crate> = vec![];
     let mut lines = lines;
 
     for line in lines.by_ref() {
         let line = line.unwrap();
 
-        if line == "" {
+        if line.is_empty() {
             break;
         }
 
         let len = (line.len() + 1) / 4;
 
         if crates.is_empty() {
-            crates = vec![(vec![], vec![]); len];
+            crates = vec![Crate::new(); len];
         }
 
         for i in 0..len {
             let s = &line[i * 4 + 1..i * 4 + 2];
 
             if s != " " {
-                crates[i].0.push(s.to_string());
-                crates[i].1.push(s.to_string());
+                crates[i].part1.push(s.to_string());
+                crates[i].part2.push(s.to_string());
             }
         }
     }
@@ -55,20 +70,20 @@ where
             .unwrap();
 
         // part 1
-        let v: Vec<String> = crates[from - 1].0.drain(..count).rev().collect();
+        let v: Vec<String> = crates[from - 1].part1.drain(..count).rev().collect();
 
-        crates[to - 1].0.splice(..0, v);
+        crates[to - 1].part1.splice(..0, v);
 
         // part 2
-        let v: Vec<String> = crates[from - 1].1.drain(..count).collect();
+        let v: Vec<String> = crates[from - 1].part2.drain(..count).collect();
 
-        crates[to - 1].1.splice(..0, v);
+        crates[to - 1].part2.splice(..0, v);
     }
 
     crates
         .iter()
         .fold((String::from(""), String::from("")), |s, c| {
-            (s.0 + &c.0[0], s.1 + &c.1[0])
+            (s.0 + &c.part1[0], s.1 + &c.part2[0])
         })
 }
 

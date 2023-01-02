@@ -30,12 +30,18 @@ fn move_step(indexes: &Vec<Elem>, index: usize, forward: bool, count: usize) -> 
 
 fn mix(indexes: &mut Vec<Elem>, values: &Vec<i64>, key: i64) {
     for (index, value) in values.iter().enumerate() {
-        let steps = (value.abs() * key) as usize % (indexes.len() - 1);
+        let forward;
+        let mut steps = (value * key).rem_euclid(indexes.len() as i64 - 1) as usize;
 
         if steps == 0 {
             continue;
         }
-        let forward = *value > 0;
+        if steps > (indexes.len() - 1) / 2 {
+            forward = false;
+            steps = indexes.len() - 1 - steps;
+        } else {
+            forward = true;
+        }
         let elem = indexes[index];
 
         // remove elem

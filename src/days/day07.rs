@@ -31,7 +31,7 @@ where
                 "ls" => (),
                 "cd .." => dirs.push(pop_and_add(&mut stack)),
                 _ => stack.push(0),
-            };
+            }
         } else {
             let size_capture = size_regexp.captures(&line).unwrap();
             let size = size_capture.get(1).unwrap().as_str().parse::<usize>();

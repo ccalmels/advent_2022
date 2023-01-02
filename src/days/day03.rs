@@ -85,14 +85,14 @@ where
 {
     let mut group = vec![];
 
-    lines.fold((0i32, 0i32), |scores, line| {
-        let s = line.unwrap();
-        let half = s.len() / 2;
+    lines.fold((0, 0), |scores, line| {
+        let line = line.unwrap();
+        let half = line.len() / 2;
 
-        let part1 = element_priority(find_element(&s[0..half], &s[half..]).unwrap());
+        let part1 = element_priority(find_element(&line[0..half], &line[half..]).unwrap());
         let part2;
 
-        group.push(s);
+        group.push(line);
 
         if group.len() == 3 {
             part2 = element_priority(common_element(&group[0], &group[1], &group[2]));

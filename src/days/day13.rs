@@ -295,7 +295,6 @@ where
     let mut iter = lines.into_iter().peekable();
     let mut part1 = vec![];
     let mut part2 = vec![];
-    let mut index = 1;
     let mut packets = vec![];
 
     while iter.peek().is_some() {
@@ -313,9 +312,8 @@ where
         let p2 = &packets[2 * i + 1];
 
         if p1 < p2 {
-            part1.push(index);
+            part1.push(i + 1);
         }
-        index += 1;
     }
 
     let divider_packets = vec![
@@ -329,13 +327,10 @@ where
 
     packets.sort();
 
-    index = 1;
-
-    for p in packets {
+    for (index, p) in packets.iter().enumerate() {
         if divider_packets.contains(&p) {
-            part2.push(index);
+            part2.push(index + 1);
         }
-        index += 1;
     }
 
     (part1.iter().sum(), part2.iter().product())

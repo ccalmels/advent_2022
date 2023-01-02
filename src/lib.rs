@@ -2,6 +2,7 @@ use std::cmp::{Eq, Ord, Ordering};
 use std::fs::File;
 use std::io::{self, BufRead, BufReader, Lines};
 use std::path::Path;
+use std::time::Instant;
 
 #[derive(Eq, Ord)]
 pub struct Day {
@@ -21,11 +22,13 @@ impl Day {
     }
 
     fn print(self: &Self) {
+        let start = Instant::now();
         let (day_number, part1, part2) = self.resolve();
+        let duration = start.elapsed();
 
         println!(
-            "day{:0>2}: part1: {:15} part2: {}",
-            day_number, part1, part2
+            "day{:0>2}: part1: {:15} part2: {:15} in {:?}",
+            day_number, part1, part2, duration
         );
     }
 

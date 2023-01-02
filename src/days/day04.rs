@@ -32,7 +32,7 @@ fn resolve<T>(lines: Lines<T>) -> (u32, u32)
 where
     T: BufRead,
 {
-    lines.fold((0u32, 0u32), |scores, line| {
+    lines.fold((0, 0), |scores, line| {
         let values: Vec<u32> = line
             .unwrap()
             .split(|c: char| !c.is_ascii_digit())

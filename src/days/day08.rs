@@ -143,9 +143,7 @@ where
         for i in 0..grid[j].len() {
             let score = grid[j][i].scenic_score();
 
-            if score > part2 {
-                part2 = score;
-            }
+            part2 = std::cmp::max(part2, score);
 
             if i > 0 && j > 0 && i < grid[j].len() - 1 && j < grid.len() - 1 {
                 part1 += grid[j][i].is_visible() as usize;
