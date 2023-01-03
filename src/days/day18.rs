@@ -1,31 +1,37 @@
 use regex::Regex;
-use std::io::{BufRead, Lines};
 use std::collections::HashSet;
+use std::io::{BufRead, Lines};
 
-fn are_adjacent(a: (i32, i32, i32), b: (i32, i32, i32)) -> bool {
-    let x = (b.0 - a.0).abs();
-    let y = (b.1 - a.1).abs();
-    let z = (b.2 - a.2).abs();
-
-    x + y + z == 1
+fn get_neighboor(p: (i32, i32, i32)) -> [(i32, i32, i32); 6] {
+    [
+        (p.0 + 1, p.1, p.2),
+        (p.0 - 1, p.1, p.2),
+        (p.0, p.1 + 1, p.2),
+        (p.0, p.1 - 1, p.2),
+        (p.0, p.1, p.2 + 1),
+        (p.0, p.1, p.2 - 1),
+    ]
 }
 
-fn is_adjacent(p: (i32, i32, i32), list: &Vec<(i32, i32, i32)>) -> bool {
-    list.iter().any(|&x| are_adjacent(p, x))
+fn is_adjacent(p: (i32, i32, i32), hash: &HashSet<(i32, i32, i32)>) -> bool {
+    get_neighboor(p).iter().any(|&p| hash.contains(&p))
 }
 
-fn count_faces(points: &Vec<(i32, i32, i32)>) -> usize {
-    let mut adjacents = 0;
+fn count_faces(mut points: HashSet<(i32, i32, i32)>) -> usize {
+    let mut adjacents = 6 * points.len();
 
-    for i in 0..points.len() {
-        for j in i..points.len() {
-            if are_adjacent(points[i], points[j]) {
-                adjacents += 1;
-            }
-        }
+    while !points.is_empty() {
+        let p = points.iter().next().unwrap().clone();
+
+        points.remove(&p);
+
+        adjacents -= 2 * get_neighboor(p)
+            .iter()
+            .filter(|&p| points.contains(&p))
+            .count();
     }
 
-    points.len() * 6 - adjacents * 2
+    adjacents
 }
 
 fn capture_point(re: &regex::Regex, line: &String) -> (i32, i32, i32) {
@@ -56,7 +62,7 @@ where
     T: BufRead,
 {
     let point_regex = Regex::new(r"(\d+),(\d+),(\d+)").unwrap();
-    let mut points = vec![];
+    let mut points = HashSet::new();
     let mut max = (0, 0, 0);
 
     for line in lines {
@@ -66,11 +72,11 @@ where
         max.1 = i32::max(max.1, p.1);
         max.2 = i32::max(max.2, p.2);
 
-        points.push(p);
+        points.insert(p);
     }
 
-    let mut spaces = vec![];
-    let mut external = vec![];
+    let mut spaces = HashSet::new();
+    let mut external = HashSet::new();
 
     for x in 0..max.0 + 1 {
         for y in 0..max.1 + 1 {
@@ -86,9 +92,9 @@ where
                         || p.2 == max.2
                         || is_adjacent(p, &external)
                     {
-                        external.push(p);
+                        external.insert(p);
                     } else {
-                        spaces.push(p);
+                        spaces.insert(p);
                     }
                 }
             }
@@ -102,7 +108,7 @@ where
 
         spaces.retain(|&x| {
             if is_adjacent(x, &external) {
-                external.push(x);
+                external.insert(x);
                 false
             } else {
                 true
@@ -116,9 +122,9 @@ where
 
     // println!("external/spaces {}/{}", external.len(), spaces.len());
 
-    let faces = count_faces(&points);
+    let faces = count_faces(points);
 
-    (faces, faces - count_faces(&spaces))
+    (faces, faces - count_faces(spaces))
 }
 
 #[test]
