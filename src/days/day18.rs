@@ -2,7 +2,7 @@ use regex::Regex;
 use std::collections::HashSet;
 use std::io::{BufRead, Lines};
 
-fn get_neighboor(p: (i32, i32, i32)) -> [(i32, i32, i32); 6] {
+fn get_neighbor(p: (i32, i32, i32)) -> [(i32, i32, i32); 6] {
     [
         (p.0 + 1, p.1, p.2),
         (p.0 - 1, p.1, p.2),
@@ -14,7 +14,7 @@ fn get_neighboor(p: (i32, i32, i32)) -> [(i32, i32, i32); 6] {
 }
 
 fn is_adjacent(p: (i32, i32, i32), hash: &HashSet<(i32, i32, i32)>) -> bool {
-    get_neighboor(p).iter().any(|&p| hash.contains(&p))
+    get_neighbor(p).iter().any(|&p| hash.contains(&p))
 }
 
 fn count_faces(mut points: HashSet<(i32, i32, i32)>) -> usize {
@@ -25,7 +25,7 @@ fn count_faces(mut points: HashSet<(i32, i32, i32)>) -> usize {
 
         points.remove(&p);
 
-        adjacents -= 2 * get_neighboor(p)
+        adjacents -= 2 * get_neighbor(p)
             .iter()
             .filter(|&p| points.contains(&p))
             .count();
