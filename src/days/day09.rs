@@ -16,16 +16,20 @@ impl Point {
         Point { x: 0, y: 0 }
     }
 
-    fn add(self: &mut Self, v: (i32, i32)) {
-        self.x += v.0;
-        self.y += v.1;
+    fn add(self: &Self, v: (i32, i32)) -> Self {
+        Point {
+            x: self.x + v.0,
+            y: self.y + v.1,
+        }
     }
 
-    fn follow(self: &mut Self, other: &Point) {
+    fn follow(self: &Self, other: &Point) -> Self {
         let (vx, vy) = vector(self, other);
 
         if !(vx.abs() < 2 && vy.abs() < 2) {
-            self.add((vx.signum(), vy.signum()));
+            self.add((vx.signum(), vy.signum()))
+        } else {
+            self.clone()
         }
     }
 }
@@ -36,7 +40,6 @@ where
 {
     let size = 9;
     let mut head = Point::new();
-    let mut tail = Point::new();
     let mut knots = vec![Point::new(); size];
     let mut part1 = HashSet::new();
     let mut part2 = HashSet::new();
@@ -56,22 +59,15 @@ where
         };
 
         for _ in 0..value {
-            head.add(vector);
+            head = head.add(vector);
 
-            // part 1
-            tail.follow(&head);
-
-            part1.insert((tail.x, tail.y));
-
-            // part 2
-            knots[0].follow(&head);
+            knots[0] = knots[0].follow(&head);
 
             for i in 1..size {
-                let previous = knots[i - 1].clone();
-
-                knots[i].follow(&previous);
+                knots[i] = knots[i].follow(&knots[i - 1]);
             }
 
+            part1.insert((knots[0].x, knots[0].y));
             part2.insert((knots[size - 1].x, knots[size - 1].y));
         }
     }
