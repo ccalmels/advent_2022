@@ -1,3 +1,4 @@
+use rayon::prelude::*;
 use std::collections::{HashMap, HashSet};
 use std::io::{BufRead, Lines};
 
@@ -99,29 +100,30 @@ fn next_position(p: (i32, i32), points: &HashSet<(i32, i32)>, start: Direction) 
 }
 
 fn update_points(points: &mut HashSet<(i32, i32)>, start: Direction) -> bool {
-    let mut new_points: HashMap<(i32, i32), Vec<(i32, i32)>> = HashMap::new();
+    let new_points = points
+        .par_iter()
+        .map(|p| (next_position(*p, &points, start.clone()), *p))
+        .collect::<Vec<_>>()
+        .iter()
+        .fold(HashMap::new(), |mut acc, (key, value)| {
+            acc.entry(*key).or_insert(vec![]).push(*value);
+            acc
+        });
 
-    for p in points.iter() {
-        let new_p = next_position(*p, &points, start.clone());
+    new_points
+        .into_iter()
+        .filter_map(|(new_p, old_ps)| {
+            if old_ps.len() == 1 && old_ps[0] != new_p {
+                points.insert(new_p);
+                points.remove(&old_ps[0]);
 
-        if let Some(v) = new_points.get_mut(&new_p) {
-            v.push(*p);
-        } else {
-            new_points.insert(new_p, vec![*p]);
-        }
-    }
-
-    let mut someone_moved = false;
-
-    for (new_pos, old_pos) in &new_points {
-        if old_pos.len() == 1 && old_pos[0] != *new_pos {
-            someone_moved = true;
-            points.remove(&old_pos[0]);
-            points.insert(*new_pos);
-        }
-    }
-
-    someone_moved
+                Some(())
+            } else {
+                None
+            }
+        })
+        .count()
+        != 0
 }
 
 fn part1(points: &HashSet<(i32, i32)>) -> i32 {

@@ -9,4 +9,5 @@ edition = "2021"
 automod = "1.0.4"
 clap = { version = "4.0.29", features = ["derive"] }
 inventory = "0.3"
+rayon = "1.6.1"
 regex = "1.7.0"
