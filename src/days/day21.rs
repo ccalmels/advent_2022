@@ -47,46 +47,39 @@ fn change_root(op: Operation) -> Operation {
     }
 }
 
-fn find_operation(hash: &mut HashMap<String, Operation>, name: &String) -> (String, Operation) {
+fn find_operation(hash: &HashMap<String, Operation>, name: &String) -> (String, Operation) {
     for (k, v) in hash {
-        let item = v.clone();
-
-        match item {
-            Operation::Add(a, b) => {
-                if a == *name {
-                    return (k.to_string(), Operation::Del(k.to_string(), b));
-                } else if b == *name {
-                    return (k.to_string(), Operation::Del(k.to_string(), a));
-                }
-            }
-            Operation::Del(a, b) => {
-                if a == *name {
-                    return (k.to_string(), Operation::Add(k.to_string(), b));
-                } else if b == *name {
-                    return (k.to_string(), Operation::Del(a, k.to_string()));
-                }
-            }
-            Operation::Product(a, b) => {
-                if a == *name {
-                    return (k.to_string(), Operation::Divide(k.to_string(), b));
-                } else if b == *name {
-                    return (k.to_string(), Operation::Divide(k.to_string(), a));
-                }
-            }
-            Operation::Divide(a, b) => {
-                if a == *name {
-                    return (k.to_string(), Operation::Product(k.to_string(), b));
-                } else if b == *name {
-                    return (k.to_string(), Operation::Divide(a, k.to_string()));
-                }
-            }
-            Operation::Equal(a, b) => {
-                if a == *name {
-                    return (k.to_string(), Operation::Alias(b));
-                } else if b == *name {
-                    return (k.to_string(), Operation::Alias(a));
-                }
-            }
+        match v {
+            Operation::Add(a, b) if a == name => {
+                return (k.clone(), Operation::Del(k.clone(), b.clone()));
+            },
+            Operation::Add(a, b) if b == name => {
+                return (k.clone(), Operation::Del(k.clone(), a.clone()));
+            },
+            Operation::Del(a, b) if a == name => {
+                return (k.clone(), Operation::Add(k.clone(), b.clone()));
+            },
+            Operation::Del(a, b) if b == name => {
+                return (k.clone(), Operation::Del(a.clone(), k.clone()));
+            },
+            Operation::Product(a, b) if a == name => {
+                return (k.clone(), Operation::Divide(k.clone(), b.clone()));
+            },
+            Operation::Product(a, b) if b == name => {
+                return (k.clone(), Operation::Divide(k.clone(), a.clone()));
+            },
+            Operation::Divide(a, b) if a == name => {
+                return (k.clone(), Operation::Product(k.clone(), b.clone()));
+            },
+            Operation::Divide(a, b) if b == name => {
+                return (k.clone(), Operation::Divide(a.clone(), k.clone()));
+            },
+            Operation::Equal(a, b) if a == name => {
+                return (k.clone(), Operation::Alias(b.clone()));
+            },
+            Operation::Equal(a, b) if b == name => {
+                return (k.clone(), Operation::Alias(a.clone()));
+            },
             _ => continue,
         }
     }
@@ -94,19 +87,18 @@ fn find_operation(hash: &mut HashMap<String, Operation>, name: &String) -> (Stri
 }
 
 fn compute(hash: &mut HashMap<String, Operation>, name: &String) -> i64 {
-    let item = hash.get(name);
-    let op: Operation;
+    let op;
 
-    if item.is_none() {
-        let res = find_operation(hash, name);
-        op = res.1;
-
-        hash.remove(&res.0);
+    if let Some(operation) = hash.get(name) {
+        op = operation.clone();
     } else {
-        op = item.unwrap().clone();
+        let key;
+        (key, op) = find_operation(hash, name);
+
+        hash.remove(&key);
     }
 
-    let result: i64 = match op {
+    let result = match op {
         Operation::Add(a, b) => compute(hash, &a) + compute(hash, &b),
         Operation::Del(a, b) => compute(hash, &a) - compute(hash, &b),
         Operation::Product(a, b) => compute(hash, &a) * compute(hash, &b),
