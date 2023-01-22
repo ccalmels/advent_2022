@@ -27,7 +27,7 @@ impl Day {
         let duration = start.elapsed();
 
         println!(
-            "day{:0>2}: part1: {:15} part2: {:15} in {:?}",
+            "day{:0>2}: part1: {:20} part2: {:20} in {:?}",
             day_number, part1, part2, duration
         );
     }
