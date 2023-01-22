@@ -10,7 +10,7 @@ impl Chamber {
     #[allow(dead_code)]
     fn print(self: &Self, points: Vec<(usize, usize)>) {
         for (y, row) in self.grid.iter().enumerate().rev() {
-            let mut s = "".to_string();
+            let mut s = String::from("");
 
             for (i, c) in row.iter().enumerate() {
                 if *c {

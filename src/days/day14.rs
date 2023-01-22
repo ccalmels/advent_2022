@@ -23,7 +23,7 @@ fn segments(point_a: (i32, i32), point_b: (i32, i32)) -> Vec<(i32, i32)> {
 #[allow(dead_code)]
 fn print_hash(verticals: &HashMap<i32, Vec<i32>>, maxy: i32) {
     for y in 0..maxy + 2 {
-        let mut row = "".to_string();
+        let mut row = String::from("");
 
         for x in 404..594 {
             let vertical = verticals.get(&x);

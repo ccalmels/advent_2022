@@ -35,8 +35,8 @@ fn print_bfs(lengths: &Vec<Vec<usize>>) {
     let w = lengths[0].len();
 
     for y in 0..h {
-        let mut row = "".to_string();
-        let mut sep = "".to_string();
+        let mut row = String::from("");
+        let mut sep = String::from("");
 
         for x in 0..w {
             let l = lengths[y][x];

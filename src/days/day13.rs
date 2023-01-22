@@ -158,7 +158,7 @@ impl From<ParseIntError> for ParsePacketError {
 }
 
 fn get_item(cursor: &mut Cursor) -> Result<Item, ParsePacketError> {
-    let mut value = "".to_string();
+    let mut value = String::from("");
     let mut c = cursor.get()?;
 
     if c == '[' {
