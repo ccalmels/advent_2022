@@ -1,3 +1,4 @@
+use rayon::prelude::*;
 use regex::Regex;
 use std::io::{BufRead, Lines};
 
@@ -171,17 +172,22 @@ where
         size = 4000000;
     }
 
-    let mut part2 = 0;
+    // let part2 = (0..size + 1)
+    //     .into_iter()
+    //     .find_map(|row| {
+    let part2 = (0..size + 1)
+        .into_par_iter()
+        .find_map_any(|row| {
+            let mut ranges = ranges_on_row(&sensors, row, true, Some((0, size)));
 
-    for row in 0..size + 1 {
-        let mut ranges = ranges_on_row(&sensors, row, true, Some((0, size)));
-
-        if ranges.len() == 2 {
-            ranges.sort();
-            part2 = (ranges[0].1 as i64 + 1) * 4000000 + row as i64;
-            break;
-        }
-    }
+            if ranges.len() == 2 {
+                ranges.sort();
+                Some((ranges[0].1 as i64 + 1) * 4000000 + row as i64)
+            } else {
+                None
+            }
+        })
+        .unwrap();
 
     (
         ranges_on_row(&sensors, row, false, None)
