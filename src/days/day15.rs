@@ -90,26 +90,13 @@ fn push_and_merge(list: &mut Vec<(i32, i32)>, range: (i32, i32)) {
     list.push(range);
 }
 
-fn merge_one_time(list: &Vec<(i32, i32)>) -> Vec<(i32, i32)> {
-    let mut result = vec![];
+fn merge_ranges(mut list: Vec<(i32, i32)>) -> Vec<(i32, i32)> {
+    list.sort();
 
-    for r in list {
-        push_and_merge(&mut result, *r);
-    }
-    result
-}
-
-fn auto_merge(list: Vec<(i32, i32)>) -> Vec<(i32, i32)> {
-    let mut list = list;
-
-    loop {
-        let result = merge_one_time(&list);
-
-        if list.len() == result.len() {
-            return result;
-        }
-        list = result;
-    }
+    list.iter().fold(vec![], |mut acc, &r| {
+        push_and_merge(&mut acc, r);
+        acc
+    })
 }
 
 fn ranges_on_row(
@@ -134,7 +121,7 @@ fn ranges_on_row(
         }
     }
 
-    auto_merge(ranges)
+    merge_ranges(ranges)
 }
 
 fn resolve<T>(lines: Lines<T>) -> (i32, i64)
@@ -178,10 +165,9 @@ where
     let part2 = (0..size + 1)
         .into_par_iter()
         .find_map_any(|row| {
-            let mut ranges = ranges_on_row(&sensors, row, true, Some((0, size)));
+            let ranges = ranges_on_row(&sensors, row, true, Some((0, size)));
 
             if ranges.len() == 2 {
-                ranges.sort();
                 Some((ranges[0].1 as i64 + 1) * 4000000 + row as i64)
             } else {
                 None
