@@ -5,17 +5,20 @@ use std::io::{BufRead, Lines};
 fn segments(point_a: (i32, i32), point_b: (i32, i32)) -> Vec<(i32, i32)> {
     let mut points = vec![];
     let v: (i32, i32) = (
-        i32::signum(point_b.0 - point_a.0),
-        i32::signum(point_b.1 - point_a.1),
+        (point_b.0 - point_a.0).signum(),
+        (point_b.1 - point_a.1).signum(),
     );
     let mut p = point_a;
 
-    while p != point_b {
+    loop {
         points.push(p);
+
+        if p == point_b {
+            break;
+        }
 
         p = (p.0 + v.0, p.1 + v.1);
     }
-    points.push(point_b);
 
     points
 }
@@ -132,9 +135,7 @@ where
                 let x = split.next().unwrap().parse::<i32>().unwrap();
                 let y = split.next().unwrap().parse::<i32>().unwrap();
 
-                if y > maxy {
-                    maxy = y;
-                }
+                maxy = i32::max(maxy, y);
                 (x, y)
             })
             .collect::<Vec<_>>();
