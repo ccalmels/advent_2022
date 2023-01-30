@@ -1,38 +1,31 @@
 use std::io::{BufRead, Lines};
 
-fn add(a: char, b: char) -> (char, char) {
-    match (a, b) {
-        ('0', b) => ('0', b),
-        (a, '0') => ('0', a),
+fn to_value(c: char) -> i32 {
+    match c {
+        '=' => -2,
+        '-' => -1,
+        '0' => 0,
+        '1' => 1,
+        '2' => 2,
+        _ => panic!(),
+    }
+}
 
-        ('=', '=') => ('-', '1'),
-        ('=', '-') => ('-', '2'),
-        ('=', '1') => ('0', '-'),
-        ('=', '2') => ('0', '0'),
-
-        ('-', '=') => ('-', '2'),
-        ('-', '-') => ('0', '='),
-        ('-', '1') => ('0', '0'),
-        ('-', '2') => ('0', '1'),
-
-        ('1', '=') => ('0', '-'),
-        ('1', '-') => ('0', '0'),
-        ('1', '1') => ('0', '2'),
-        ('1', '2') => ('1', '='),
-
-        ('2', '=') => ('0', '0'),
-        ('2', '-') => ('0', '1'),
-        ('2', '1') => ('1', '='),
-        ('2', '2') => ('1', '-'),
-
-        (_, _) => panic!(),
+fn to_char(v: i32) -> char {
+    match v {
+        -2 => '=',
+        -1 => '-',
+        0 => '0',
+        1 => '1',
+        2 => '2',
+        _ => panic!(),
     }
 }
 
 fn add_snafu(a: &str, b: &str) -> String {
     let (longest, shortest) = if a.len() > b.len() { (a, b) } else { (b, a) };
 
-    let mut retenue = '0';
+    let mut retenue = 0;
     let mut ret = vec![];
 
     for (c1, c2) in longest
@@ -40,16 +33,15 @@ fn add_snafu(a: &str, b: &str) -> String {
         .rev()
         .zip(shortest.chars().rev().chain(std::iter::repeat('0')))
     {
-        let (r1, v) = add(c1, c2);
-        let (r2, v) = add(v, retenue);
+        let sum = to_value(c1) + to_value(c2) + retenue;
 
-        ret.push(v);
+        retenue = sum.signum() * (sum.abs() + 2) / 5;
 
-        (_, retenue) = add(r1, r2);
+        ret.push(to_char(sum - retenue * 5));
     }
 
-    if retenue != '0' {
-        ret.push(retenue);
+    if retenue != 0 {
+        ret.push(to_char(retenue));
     }
 
     ret.into_iter().rev().collect()
@@ -57,9 +49,6 @@ fn add_snafu(a: &str, b: &str) -> String {
 
 #[test]
 fn check_add() {
-    assert_eq!(add('1', '1'), ('0', '2'));
-    assert_eq!(add('1', '2'), ('1', '='));
-
     assert_eq!(add_snafu("1-", "11"), "20");
     assert_eq!(add_snafu("2-", "11"), "1=0");
     assert_eq!(add_snafu("1=0", "10"), "1-0");
