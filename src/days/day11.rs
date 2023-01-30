@@ -137,7 +137,7 @@ where
     }
 
     let mut inspects_1 = monkeys_1.iter().map(|x| x.inspects).collect::<Vec<_>>();
-    inspects_1.sort();
+    inspects_1.sort_by(|a, b| b.cmp(a));
 
     let supermodulo: u64 = monkeys_2.iter().map(|m| m.divisible.0).product();
 
@@ -152,13 +152,13 @@ where
     // println!("{monkeys2:?}");
 
     let mut inspects_2 = monkeys_2.iter().map(|x| x.inspects).collect::<Vec<_>>();
-    inspects_2.sort();
+    inspects_2.sort_by(|a, b| b.cmp(a));
 
     // println!("{inspects2:?}");
 
     (
-        inspects_1[len - 1] * inspects_1[len - 2],
-        inspects_2[len - 1] * inspects_2[len - 2],
+        inspects_1.iter().take(2).product(),
+        inspects_2.iter().take(2).product()
     )
 }
 
