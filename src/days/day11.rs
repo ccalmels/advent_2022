@@ -9,7 +9,7 @@ enum Operation {
 }
 
 impl Operation {
-    fn compute(self: &Self, value: u64) -> u64 {
+    fn compute(&self, value: u64) -> u64 {
         match self {
             Operation::Multiply(v) => value * v,
             Operation::Add(v) => value + v,
@@ -36,7 +36,7 @@ impl Monkey {
         }
     }
 
-    fn round<F>(self: &mut Self, reduce: F) -> Vec<(u64, usize)>
+    fn round<F>(&mut self, reduce: F) -> Vec<(u64, usize)>
     where
         F: Fn(u64) -> u64,
     {
@@ -81,10 +81,10 @@ where
 {
     let number_regex = Regex::new(r"\d+").unwrap();
     let operation_regex = Regex::new(r"new = old (\*|\+) (\d+|old)").unwrap();
-    let mut iter = lines.into_iter();
+    let mut iter = lines;
     let mut monkeys = vec![];
 
-    while !iter.next().is_none() {
+    while iter.next().is_some() {
         let items = iter.next().unwrap().unwrap();
         let items = number_regex
             .find_iter(&items)

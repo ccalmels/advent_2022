@@ -1,22 +1,20 @@
 use std::io::{BufRead, Lines};
 
-fn get_max(heights: &Vec<Option<usize>>) -> u8 {
-    for i in (0..10).rev() {
-        if heights[i].is_some() {
+fn get_max(heights: &[Option<usize>; 10]) -> u8 {
+    for (i, height) in heights.iter().enumerate().rev() {
+        if height.is_some() {
             return i as u8;
         }
     }
     0u8
 }
 
-fn get_visible_index(heights: &Vec<Option<usize>>, value: u8) -> usize {
+fn get_visible_index(heights: &[Option<usize>; 10], value: u8) -> usize {
     let mut index = 0;
 
-    for i in value as usize..10 {
-        if let Some(idx) = heights[i] {
-            if idx > index {
-                index = idx;
-            }
+    for height in heights.iter().skip(value as usize).flatten() {
+        if height > &index {
+            index = *height
         }
     }
     index
@@ -33,7 +31,7 @@ impl Visibility {
         Visibility { max: 0, count: 0 }
     }
 
-    fn compute(self: &mut Self, heights: &Vec<Option<usize>>, value: u8, index: usize) {
+    fn compute(&mut self, heights: &[Option<usize>; 10], value: u8, index: usize) {
         self.max = get_max(heights);
         self.count = index - get_visible_index(heights, value);
     }
@@ -59,32 +57,32 @@ impl Tree {
         }
     }
 
-    fn is_visible(self: &Self) -> bool {
+    fn is_visible(&self) -> bool {
         self.value > self.left.max
             || self.value > self.right.max
             || self.value > self.up.max
             || self.value > self.down.max
     }
 
-    fn scenic_score(self: &Self) -> usize {
+    fn scenic_score(&self) -> usize {
         self.left.count * self.right.count * self.up.count * self.down.count
     }
 }
 
 fn compute_max_and_visible(grid: &mut Vec<Vec<Tree>>) {
-    for j in 0..grid.len() {
-        let mut last_indices_left = vec![None; 10];
-        let mut last_indices_right = vec![None; 10];
-        let len = grid[j].len();
+    for row in grid.iter_mut() {
+        let mut last_indices_left = [None; 10];
+        let mut last_indices_right = [None; 10];
+        let len = row.len();
 
         for i in 0..len {
-            let tree = &mut grid[j][i];
+            let tree = &mut row[i];
 
             tree.left.compute(&last_indices_left, tree.value, i);
 
             last_indices_left[tree.value as usize] = Some(i);
 
-            let tree = &mut grid[j][len - 1 - i];
+            let tree = &mut row[len - 1 - i];
 
             tree.right.compute(&last_indices_right, tree.value, i);
 
@@ -93,8 +91,8 @@ fn compute_max_and_visible(grid: &mut Vec<Vec<Tree>>) {
     }
 
     for i in 0..grid[0].len() {
-        let mut last_indices_up = vec![None; 10];
-        let mut last_indices_down = vec![None; 10];
+        let mut last_indices_up = [None; 10];
+        let mut last_indices_down = [None; 10];
         let len = grid.len();
 
         for j in 0..len {
@@ -124,7 +122,7 @@ where
         let array: Vec<Tree> = line
             .as_bytes()
             .iter()
-            .map(|x| Tree::new(x - '0' as u8))
+            .map(|x| Tree::new(x - b'0'))
             .collect();
 
         grid.push(array);

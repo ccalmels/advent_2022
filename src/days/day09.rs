@@ -16,14 +16,14 @@ impl Point {
         Point { x: 0, y: 0 }
     }
 
-    fn add(self: &Self, v: (i32, i32)) -> Self {
+    fn add(&self, v: (i32, i32)) -> Self {
         Point {
             x: self.x + v.0,
             y: self.y + v.1,
         }
     }
 
-    fn follow(self: &Self, other: &Point) -> Self {
+    fn follow(&self, other: &Point) -> Self {
         let (vx, vy) = vector(self, other);
 
         if !(vx.abs() < 2 && vy.abs() < 2) {

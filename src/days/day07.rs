@@ -54,7 +54,7 @@ where
 
     (
         dirs.iter().filter(|x| x < &&100000).sum(),
-        *dirs.iter().filter(|x| x > &&needed).next().unwrap(),
+        *dirs.iter().find(|x| x > &&needed).unwrap(),
     )
 }
 

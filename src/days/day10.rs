@@ -1,20 +1,20 @@
 use std::io::{BufRead, Lines};
 
-struct CPU {
+struct Cpu {
     x: i32,
     cycle: u32,
     signal_strength: i32,
 }
 
-impl CPU {
+impl Cpu {
     fn new() -> Self {
-        CPU {
+        Cpu {
             x: 1,
             cycle: 0,
             signal_strength: 0,
         }
     }
-    fn tick(self: &mut Self) {
+    fn tick(&mut self) {
         self.cycle += 1;
 
         if (self.cycle + 20) % 40 == 0 {
@@ -22,25 +22,25 @@ impl CPU {
         }
     }
 
-    fn addx(self: &mut Self, value: i32) {
+    fn addx(&mut self, value: i32) {
         self.x += value;
     }
 }
 
-struct CRT {
+struct Crt {
     screen: String,
     pos: i32,
 }
 
-impl CRT {
+impl Crt {
     fn new() -> Self {
-        CRT {
+        Crt {
             screen: "\n".to_string(),
             pos: 0,
         }
     }
 
-    fn tick(self: &mut Self, x: i32) {
+    fn tick(&mut self, x: i32) {
         if self.pos > x + 1 || self.pos < x - 1 {
             self.screen.push('.');
         } else {
@@ -60,8 +60,8 @@ fn resolve<T>(lines: Lines<T>) -> (i32, String)
 where
     T: BufRead,
 {
-    let mut cpu = CPU::new();
-    let mut crt = CRT::new();
+    let mut cpu = Cpu::new();
+    let mut crt = Crt::new();
 
     for line in lines {
         let line = line.unwrap();

@@ -1,6 +1,6 @@
 use rayon::prelude::*;
 use regex::Regex;
-use std::io::{BufRead, Lines};
+use std::{io::{BufRead, Lines}, cmp::Ordering};
 
 #[derive(Debug)]
 struct Sensor {
@@ -22,24 +22,20 @@ impl Sensor {
         }
     }
 
-    fn intercept(self: &Self, row: i32, count_beacon: bool) -> Option<(i32, i32)> {
+    fn intercept(&self, row: i32, count_beacon: bool) -> Option<(i32, i32)> {
         let distance = i32::abs(row - self.y);
         let rest = self.manhattan as i32 - distance;
 
         if rest < 0 {
             None
-        } else {
-            if !count_beacon && self.by == row {
-                if self.bx < self.x {
-                    Some((self.x - rest + 1, self.x + rest))
-                } else if self.bx > self.x {
-                    Some((self.x - rest, self.x + rest - 1))
-                } else {
-                    None
-                }
-            } else {
-                Some((self.x - rest, self.x + rest))
+        } else if !count_beacon && self.by == row {
+            match self.bx.cmp(&self.x) {
+                Ordering::Greater => Some((self.x - rest, self.x + rest - 1)),
+                Ordering::Less => Some((self.x - rest + 1, self.x + rest)),
+                Ordering::Equal => None,
             }
+        } else {
+            Some((self.x - rest, self.x + rest))
         }
     }
 }

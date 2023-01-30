@@ -11,7 +11,7 @@ enum Direction {
 }
 
 impl Direction {
-    fn next(self: &Self) -> Self {
+    fn next(&self) -> Self {
         match self {
             Direction::N => Direction::S,
             Direction::S => Direction::W,
@@ -20,7 +20,7 @@ impl Direction {
         }
     }
 
-    fn positions(self: &Self) -> [usize; 3] {
+    fn positions(&self) -> [usize; 3] {
         match self {
             Direction::N => [0, 1, 2],
             Direction::S => [5, 6, 7],
@@ -29,7 +29,7 @@ impl Direction {
         }
     }
 
-    fn update(self: &Self, p: (i32, i32)) -> (i32, i32) {
+    fn update(&self, p: (i32, i32)) -> (i32, i32) {
         match self {
             Direction::N => (p.0, p.1 - 1),
             Direction::S => (p.0, p.1 + 1),
@@ -102,13 +102,16 @@ fn next_position(p: (i32, i32), points: &HashSet<(i32, i32)>, start: Direction) 
 fn update_points(points: &mut HashSet<(i32, i32)>, start: Direction) -> bool {
     let new_points = points
         .par_iter()
-        .map(|p| (next_position(*p, &points, start.clone()), *p))
+        .map(|p| (next_position(*p, points, start.clone()), *p))
         .collect::<Vec<_>>()
         .iter()
-        .fold(HashMap::new(), |mut acc, (key, value)| {
-            acc.entry(*key).or_insert(vec![]).push(*value);
-            acc
-        });
+        .fold(
+            HashMap::<(i32, i32), Vec<(i32, i32)>>::new(),
+            |mut acc, (key, value)| {
+                acc.entry(*key).or_default().push(*value);
+                acc
+            },
+        );
 
     new_points
         .into_iter()

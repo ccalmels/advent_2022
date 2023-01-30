@@ -8,37 +8,35 @@ struct Chamber {
 
 impl Chamber {
     #[allow(dead_code)]
-    fn print(self: &Self, points: Vec<(usize, usize)>) {
+    fn print(&self, points: Vec<(usize, usize)>) {
         for (y, row) in self.grid.iter().enumerate().rev() {
             let mut s = String::from("");
 
             for (i, c) in row.iter().enumerate() {
                 if *c {
                     s.push('#');
+                } else if points.contains(&(i, y)) {
+                    s.push('@');
                 } else {
-                    if points.contains(&(i, y)) {
-                        s.push('@');
-                    } else {
-                        s.push('.');
-                    }
+                    s.push('.');
                 }
             }
             println!("{s}");
         }
-        println!("");
+        println!();
     }
 
-    fn reserve(self: &mut Self, height: usize) {
+    fn reserve(&mut self, height: usize) {
         for _ in self.grid.len()..height {
             self.grid.push([false; 7]);
         }
     }
 
-    fn check_points(self: &Self, points: Vec<(usize, usize)>) -> bool {
-        points.iter().all(|&(x, y)| self.grid[y][x] == false)
+    fn check_points(&self, points: Vec<(usize, usize)>) -> bool {
+        points.iter().all(|&(x, y)| !self.grid[y][x])
     }
 
-    fn add_points(self: &mut Self, points: Vec<(usize, usize)>) {
+    fn add_points(&mut self, points: Vec<(usize, usize)>) {
         points.iter().for_each(|&(x, y)| self.grid[y][x] = true);
 
         for (_, y) in points {
@@ -68,7 +66,7 @@ enum Shape {
 }
 
 impl Shape {
-    fn width(self: &Self) -> usize {
+    fn width(&self) -> usize {
         match self {
             Shape::Horizontal => 4,
             Shape::Cross => 3,
@@ -78,7 +76,7 @@ impl Shape {
         }
     }
 
-    fn height(self: &Self) -> usize {
+    fn height(&self) -> usize {
         match self {
             Shape::Horizontal => 1,
             Shape::Cross => 3,
@@ -88,12 +86,12 @@ impl Shape {
         }
     }
 
-    fn dots(self: &Self) -> &[(usize, usize)] {
-        static HORIZONTAL: &'static [(usize, usize)] = &[(0, 0), (1, 0), (2, 0), (3, 0)];
-        static CROSS: &'static [(usize, usize)] = &[(1, 2), (0, 1), (1, 1), (2, 1), (1, 0)];
-        static ANGLE: &'static [(usize, usize)] = &[(2, 2), (2, 1), (0, 0), (1, 0), (2, 0)];
-        static VERTICAL: &'static [(usize, usize)] = &[(0, 3), (0, 2), (0, 1), (0, 0)];
-        static DOT: &'static [(usize, usize)] = &[(0, 1), (1, 1), (0, 0), (1, 0)];
+    fn dots(&self) -> &[(usize, usize)] {
+        static HORIZONTAL: & [(usize, usize)] = &[(0, 0), (1, 0), (2, 0), (3, 0)];
+        static CROSS: & [(usize, usize)] = &[(1, 2), (0, 1), (1, 1), (2, 1), (1, 0)];
+        static ANGLE: & [(usize, usize)] = &[(2, 2), (2, 1), (0, 0), (1, 0), (2, 0)];
+        static VERTICAL: & [(usize, usize)] = &[(0, 3), (0, 2), (0, 1), (0, 0)];
+        static DOT: & [(usize, usize)] = &[(0, 1), (1, 1), (0, 0), (1, 0)];
 
         match self {
             Shape::Horizontal => HORIZONTAL,
@@ -104,7 +102,7 @@ impl Shape {
         }
     }
 
-    fn next(self: &Self) -> Self {
+    fn next(&self) -> Self {
         match self {
             Shape::Horizontal => Shape::Cross,
             Shape::Cross => Shape::Angle,
@@ -121,7 +119,7 @@ struct Tetris {
 }
 
 impl Tetris {
-    fn points(self: &Self) -> Vec<(usize, usize)> {
+    fn points(&self) -> Vec<(usize, usize)> {
         self.shape
             .dots()
             .iter()
@@ -129,7 +127,7 @@ impl Tetris {
             .collect()
     }
 
-    fn move_left(self: &mut Self, chamber: &Chamber) {
+    fn move_left(&mut self, chamber: &Chamber) {
         if self.pos.0 > 0 {
             let points = self
                 .shape
@@ -144,7 +142,7 @@ impl Tetris {
         }
     }
 
-    fn move_right(self: &mut Self, chamber: &Chamber) {
+    fn move_right(&mut self, chamber: &Chamber) {
         if self.pos.0 + self.shape.width() < 7 {
             let points = self
                 .shape
@@ -159,7 +157,7 @@ impl Tetris {
         }
     }
 
-    fn move_down(self: &mut Self, chamber: &Chamber) -> bool {
+    fn move_down(&mut self, chamber: &Chamber) -> bool {
         if self.pos.1 > 0 {
             let points = self
                 .shape

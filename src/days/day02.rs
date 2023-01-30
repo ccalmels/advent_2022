@@ -93,7 +93,7 @@ where
 
     for line in lines {
         let line = line.unwrap();
-        let words = line.split(" ").collect::<Vec<_>>();
+        let words = line.split(' ').collect::<Vec<_>>();
         let elve = match words[0] {
             "A" => Shape::Rock,
             "B" => Shape::Paper,
@@ -113,7 +113,7 @@ where
     T: BufRead,
 {
     lines.fold((0, 0), |scores, line| {
-        let words = line.as_ref().unwrap().split(" ").collect::<Vec<_>>();
+        let words = line.as_ref().unwrap().split(' ').collect::<Vec<_>>();
         let elve = match words[0] {
             "A" => Shape::Rock,
             "B" => Shape::Paper,

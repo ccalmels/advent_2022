@@ -74,11 +74,11 @@ fn add_sand_part1(verticals: &mut HashMap<i32, Vec<i32>>, (x, y): (i32, i32)) ->
 
                 return Some(y - 1);
             } else {
-                x = x + 1;
+                x += 1;
                 y = right;
             }
         } else {
-            x = x - 1;
+            x -= 1;
             y = left;
         }
     }
@@ -101,17 +101,17 @@ fn add_sand_part2(
 
             if right == y {
                 // no left, no rigth, stay here
-                let vertical = verticals.entry(x).or_insert(vec![]);
+                let vertical = verticals.entry(x).or_default();
 
                 insert_sorted(vertical, y - 1);
 
                 return Some(y - 1);
             } else {
-                x = x + 1;
+                x += 1;
                 y = right;
             }
         } else {
-            x = x - 1;
+            x -= 1;
             y = left;
         }
     }
@@ -150,7 +150,7 @@ where
     let mut verticals1: HashMap<i32, Vec<i32>> = HashMap::new();
 
     for (x, y) in rocks {
-        let vertical = verticals1.entry(x).or_insert(vec![]);
+        let vertical = verticals1.entry(x).or_default();
 
         vertical.push(y);
     }

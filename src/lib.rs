@@ -4,7 +4,7 @@ use std::io::{self, BufRead, BufReader, Lines};
 use std::path::Path;
 use std::time::Instant;
 
-#[derive(Eq, Ord)]
+#[derive(Eq)]
 pub struct Day {
     day_filename: &'static str,
     resolve: fn(Lines<BufReader<File>>) -> (String, String),
@@ -21,7 +21,7 @@ impl Day {
         }
     }
 
-    fn print(self: &Self) {
+    fn print(&self) {
         let start = Instant::now();
         let (day_number, part1, part2) = self.resolve();
         let duration = start.elapsed();
@@ -56,9 +56,14 @@ impl PartialEq for Day {
     }
 }
 
+impl Ord for Day {
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.day_filename.cmp(other.day_filename)
+    }
+}
 impl PartialOrd for Day {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        Some(self.day_filename.cmp(&other.day_filename))
+        Some(self.cmp(other))
     }
 }
 

@@ -30,9 +30,9 @@ impl Packet {
 }
 
 impl PartialEq for Packet {
-    fn eq(self: &Self, other: &Self) -> bool {
+    fn eq(&self, other: &Self) -> bool {
         if self.list.len() == other.list.len() {
-            zip(&self.list, &other.list).all(|(a, b)| a.eq(&b))
+            zip(&self.list, &other.list).all(|(a, b)| a.eq(b))
         } else {
             false
         }
@@ -40,9 +40,9 @@ impl PartialEq for Packet {
 }
 
 impl Ord for Packet {
-    fn cmp(self: &Self, other: &Self) -> Ordering {
+    fn cmp(&self, other: &Self) -> Ordering {
         for (a, b) in zip(&self.list, &other.list) {
-            let cmp = a.cmp(&b);
+            let cmp = a.cmp(b);
 
             if cmp != std::cmp::Ordering::Equal {
                 return cmp;
@@ -53,13 +53,13 @@ impl Ord for Packet {
 }
 
 impl PartialOrd for Packet {
-    fn partial_cmp(self: &Self, other: &Self) -> Option<Ordering> {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         Some(self.cmp(other))
     }
 }
 
 impl PartialEq for Item {
-    fn eq(self: &Self, other: &Self) -> bool {
+    fn eq(&self, other: &Self) -> bool {
         match self {
             Item::Value(ref v) => match other {
                 Item::Value(ref vother) => v.eq(vother),
@@ -74,21 +74,21 @@ impl PartialEq for Item {
 }
 
 impl PartialOrd for Item {
-    fn partial_cmp(self: &Self, other: &Self) -> Option<Ordering> {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         Some(self.cmp(other))
     }
 }
 
 impl Ord for Item {
-    fn cmp(self: &Self, other: &Self) -> Ordering {
+    fn cmp(&self, other: &Self) -> Ordering {
         match self {
             Item::Value(ref v) => match other {
                 Item::Value(ref vother) => v.cmp(vother),
-                Item::Packet(ref pother) => Packet::new(vec![Item::Value(*v)]).cmp(&pother),
+                Item::Packet(ref pother) => Packet::new(vec![Item::Value(*v)]).cmp(pother),
             },
             Item::Packet(ref p) => match other {
                 Item::Value(ref vother) => p.cmp(&Packet::new(vec![Item::Value(*vother)])),
-                Item::Packet(ref pother) => p.cmp(&pother),
+                Item::Packet(ref pother) => p.cmp(pother),
             },
         }
     }
@@ -107,11 +107,11 @@ impl<'a> Cursor<'a> {
         Cursor { cursor: 0, chars }
     }
 
-    fn has_remaining(self: &Self) -> bool {
+    fn has_remaining(&self) -> bool {
         self.cursor < self.chars.len()
     }
 
-    fn get(self: &Self) -> Result<char, CursorError> {
+    fn get(&self) -> Result<char, CursorError> {
         if self.has_remaining() {
             Ok(self.chars[self.cursor])
         } else {
@@ -119,11 +119,11 @@ impl<'a> Cursor<'a> {
         }
     }
 
-    fn consume(self: &mut Self) {
+    fn consume(&mut self) {
         self.cursor += 1;
     }
 
-    fn next(self: &mut Self) -> Result<char, CursorError> {
+    fn next(&mut self) -> Result<char, CursorError> {
         self.consume();
         self.get()
     }
@@ -328,7 +328,7 @@ where
     packets.sort();
 
     for (index, p) in packets.iter().enumerate() {
-        if divider_packets.contains(&p) {
+        if divider_packets.contains(p) {
             part2.push(index + 1);
         }
     }

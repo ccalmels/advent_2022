@@ -12,7 +12,7 @@ impl Elem {
     }
 }
 
-fn move_step(indexes: &Vec<Elem>, index: usize, forward: bool, count: usize) -> usize {
+fn move_step(indexes: &[Elem], index: usize, forward: bool, count: usize) -> usize {
     let mut v = index;
 
     if forward {
@@ -28,7 +28,7 @@ fn move_step(indexes: &Vec<Elem>, index: usize, forward: bool, count: usize) -> 
     v
 }
 
-fn mix(indexes: &mut Vec<Elem>, values: &Vec<i64>, key: i64) {
+fn mix(indexes: &mut Vec<Elem>, values: &[i64], key: i64) {
     for (index, value) in values.iter().enumerate() {
         let forward;
         let mut steps = (value * key).rem_euclid(indexes.len() as i64 - 1) as usize;
@@ -48,7 +48,7 @@ fn mix(indexes: &mut Vec<Elem>, values: &Vec<i64>, key: i64) {
         indexes[elem.prev].next = elem.next;
         indexes[elem.next].prev = elem.prev;
 
-        let after = move_step(&indexes, elem.next, forward, steps);
+        let after = move_step(indexes, elem.next, forward, steps);
         let before = indexes[after].prev;
 
         // println!("{} in {}, {}", value, values[after], values[before]);

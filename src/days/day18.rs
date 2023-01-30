@@ -21,21 +21,21 @@ fn count_faces(mut points: HashSet<(i32, i32, i32)>) -> usize {
     let mut adjacents = 6 * points.len();
 
     while !points.is_empty() {
-        let p = points.iter().next().unwrap().clone();
+        let p = *points.iter().next().unwrap();
 
         points.remove(&p);
 
         adjacents -= 2 * get_neighbor(p)
             .iter()
-            .filter(|&p| points.contains(&p))
+            .filter(|&p| points.contains(p))
             .count();
     }
 
     adjacents
 }
 
-fn capture_point(re: &regex::Regex, line: &String) -> (i32, i32, i32) {
-    let point_capture = re.captures(&line).unwrap();
+fn capture_point(re: &regex::Regex, line: &str) -> (i32, i32, i32) {
+    let point_capture = re.captures(line).unwrap();
     let x = point_capture
         .get(1)
         .unwrap()

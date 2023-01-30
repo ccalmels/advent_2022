@@ -34,13 +34,12 @@ fn print_bfs(lengths: &Vec<Vec<usize>>) {
     let h = lengths.len();
     let w = lengths[0].len();
 
-    for y in 0..h {
+    for r in lengths {
         let mut row = String::from("");
         let mut sep = String::from("");
 
-        for x in 0..w {
-            let l = lengths[y][x];
-            if l == h * w {
+        for l in r {
+            if *l == h * w {
                 row.push_str("   |");
             } else {
                 let s = format!("{l:3}|");
@@ -80,7 +79,7 @@ where
             return length;
         }
 
-        for p in neighbours(pos, &grid, compare).iter() {
+        for p in neighbours(pos, grid, compare).iter() {
             let new_l = length + 1;
             let l = lengths[p.1][p.0];
 
@@ -115,7 +114,7 @@ where
                 exit = (i, grid.len());
                 row.push(25);
             } else {
-                row.push(c as u8 - 'a' as u8);
+                row.push(c as u8 - b'a');
             }
         }
         grid.push(row);
