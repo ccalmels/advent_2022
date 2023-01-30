@@ -1,9 +1,9 @@
 use std::io::{BufRead, Lines};
 
 fn get_index(buf_slice: &[u8]) -> Option<usize> {
-    for (i, c) in buf_slice.iter().enumerate().rev() {
-        for j in 0..i {
-            if *c == buf_slice[j] {
+    for (i, c1) in buf_slice.iter().enumerate().rev() {
+        for (j, c2) in buf_slice.iter().take(i).enumerate() {
+            if c1 == c2 {
                 return Some(j + 1);
             }
         }
@@ -26,22 +26,18 @@ fn find_first_index(buffer: &[u8], distincts: usize) -> usize {
     panic!("");
 }
 
-fn resolve<T>(lines: Lines<T>) -> (Vec<usize>, Vec<usize>)
+fn resolve<T>(lines: Lines<T>) -> Vec<(usize, usize)>
 where
     T: BufRead,
 {
-    let mut part1 = vec![];
-    let mut part2 = vec![];
+    lines
+        .map(|line| {
+            let line = line.unwrap();
+            let buf = line.as_bytes();
 
-    for line in lines {
-        let line = line.unwrap();
-        let buf = line.as_bytes();
-
-        part1.push(find_first_index(buf, 4));
-        part2.push(find_first_index(buf, 14));
-    }
-
-    (part1, part2)
+            (find_first_index(buf, 4), find_first_index(buf, 14))
+        })
+        .collect()
 }
 
 #[test]
@@ -53,10 +49,9 @@ nznrnfrfntjfmvfwmzdfjlvtqnbhcprsg
 zcfzfwzzqfrljwzlrfnpqdbhtmscgvjw";
     use std::io::Cursor;
 
-    let (part1, part2) = resolve(Cursor::new(TEST).lines());
+    let parts = resolve(Cursor::new(TEST).lines());
 
-    assert_eq!(part1, [7, 5, 6, 10, 11]);
-    assert_eq!(part2, [19, 23, 23, 29, 26]);
+    assert_eq!(parts, [(7, 19), (5, 23), (6, 23), (10, 29), (11, 26)])
 }
 
 fn resolve_string<T>(lines: Lines<T>) -> (String, String)
@@ -64,7 +59,7 @@ where
     T: BufRead,
 {
     let solution = resolve(lines);
-    (solution.0[0].to_string(), solution.1[0].to_string())
+    (solution[0].0.to_string(), solution[0].1.to_string())
 }
 
 inventory::submit! { advent_2022::Day::new(file!(), resolve_string) }
