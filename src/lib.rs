@@ -34,10 +34,7 @@ impl Day {
 
     fn parse_number(&self) -> u32 {
         self.day_filename
-            .strip_suffix(".rs")
-            .unwrap()
-            .strip_prefix("src/days/day")
-            .unwrap()
+            .replace(|c: char| !c.is_ascii_digit(), "")
             .parse::<u32>()
             .unwrap()
     }
@@ -63,7 +60,7 @@ impl Ord for Day {
 }
 impl PartialOrd for Day {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        Some(self.cmp(other))
+        self.day_filename.partial_cmp(other.day_filename)
     }
 }
 
@@ -79,17 +76,15 @@ where
 pub fn resolve_all() {
     let mut days: Vec<&'static Day> = inventory::iter::<Day>.into_iter().collect();
 
-    days.sort();
+    days.sort_unstable();
 
     days.iter().for_each(|d| d.print());
 }
 
 pub fn resolve_one(day_number: u32) {
-    let module_name = format!("src/days/day{:0>2}.rs", day_number);
-
     inventory::iter::<Day>
         .into_iter()
-        .find(|d| d.day_filename == module_name)
+        .find(|d| d.parse_number() == day_number)
         .unwrap()
         .print();
 }
