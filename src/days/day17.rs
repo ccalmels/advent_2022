@@ -87,18 +87,18 @@ impl Shape {
     }
 
     fn dots(&self) -> &[(usize, usize)] {
-        static HORIZONTAL: & [(usize, usize)] = &[(0, 0), (1, 0), (2, 0), (3, 0)];
-        static CROSS: & [(usize, usize)] = &[(1, 2), (0, 1), (1, 1), (2, 1), (1, 0)];
-        static ANGLE: & [(usize, usize)] = &[(2, 2), (2, 1), (0, 0), (1, 0), (2, 0)];
-        static VERTICAL: & [(usize, usize)] = &[(0, 3), (0, 2), (0, 1), (0, 0)];
-        static DOT: & [(usize, usize)] = &[(0, 1), (1, 1), (0, 0), (1, 0)];
+        static HORIZONTAL: [(usize, usize); 4] = [(0, 0), (1, 0), (2, 0), (3, 0)];
+        static CROSS: [(usize, usize); 5] = [(1, 2), (0, 1), (1, 1), (2, 1), (1, 0)];
+        static ANGLE: [(usize, usize); 5] = [(2, 2), (2, 1), (0, 0), (1, 0), (2, 0)];
+        static VERTICAL: [(usize, usize); 4] = [(0, 3), (0, 2), (0, 1), (0, 0)];
+        static DOT: [(usize, usize); 4] = [(0, 1), (1, 1), (0, 0), (1, 0)];
 
         match self {
-            Shape::Horizontal => HORIZONTAL,
-            Shape::Cross => CROSS,
-            Shape::Angle => ANGLE,
-            Shape::Vertical => VERTICAL,
-            Shape::Dot => DOT,
+            Shape::Horizontal => &HORIZONTAL,
+            Shape::Cross => &CROSS,
+            Shape::Angle => &ANGLE,
+            Shape::Vertical => &VERTICAL,
+            Shape::Dot => &DOT,
         }
     }
 
