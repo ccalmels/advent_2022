@@ -26,10 +26,7 @@ impl Day {
         let (day_number, part1, part2) = self.resolve();
         let duration = start.elapsed();
 
-        println!(
-            "day{:0>2}: part1: {:20} part2: {:20} in {:?}",
-            day_number, part1, part2, duration
-        );
+        println!("day{day_number:0>2}: part1: {part1:20} part2: {part2:20} in {duration:?}");
     }
 
     fn parse_number(&self) -> u32 {
@@ -42,7 +39,7 @@ impl Day {
     fn resolve(&self) -> (u32, String, String) {
         let day_number = self.parse_number();
         let (part1, part2) =
-            (self.resolve)(read_lines(format!("./inputs/{:0>2}.txt", day_number)).unwrap());
+            (self.resolve)(read_lines(format!("./inputs/{day_number:0>2}.txt")).unwrap());
         (day_number, part1, part2)
     }
 }
