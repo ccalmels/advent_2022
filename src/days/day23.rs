@@ -80,10 +80,7 @@ fn get_neighbor(p: (i32, i32)) -> [(i32, i32); 8] {
 
 fn next_position(p: (i32, i32), points: &HashSet<(i32, i32)>, start: Direction) -> (i32, i32) {
     let mut direction = start;
-    let oks = get_neighbor(p)
-        .iter()
-        .map(|p| !points.contains(p))
-        .collect::<Vec<_>>();
+    let oks = get_neighbor(p).map(|p| !points.contains(&p));
 
     if oks != [true; 8] {
         for _ in 0..4 {
