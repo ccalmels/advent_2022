@@ -14,8 +14,6 @@ fn main() {
     if args.days.is_empty() {
         advent_2022::resolve_all();
     } else {
-        for d in args.days {
-            advent_2022::resolve_one(d);
-        }
+        args.days.iter().for_each(|&d| advent_2022::resolve_one(d));
     }
 }
