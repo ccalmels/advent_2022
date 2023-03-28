@@ -2,7 +2,7 @@ use rayon::prelude::*;
 use std::collections::{HashMap, HashSet};
 use std::io::{BufRead, Lines};
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Copy, Clone)]
 enum Direction {
     N,
     S,
@@ -29,7 +29,7 @@ impl Direction {
         }
     }
 
-    fn update(&self, p: (i32, i32)) -> (i32, i32) {
+    fn update(&self, p: &(i32, i32)) -> (i32, i32) {
         match self {
             Direction::N => (p.0, p.1 - 1),
             Direction::S => (p.0, p.1 + 1),
@@ -66,7 +66,7 @@ fn print(points: &HashSet<(i32, i32)>) {
     }
 }
 
-fn get_neighbor(p: (i32, i32)) -> [(i32, i32); 8] {
+fn get_neighbor(p: &(i32, i32)) -> [(i32, i32); 8] {
     [
         (p.0 - 1, p.1 - 1),
         (p.0, p.1 - 1),
@@ -79,7 +79,11 @@ fn get_neighbor(p: (i32, i32)) -> [(i32, i32); 8] {
     ]
 }
 
-fn next_position(p: (i32, i32), points: &HashSet<(i32, i32)>, start: Direction) -> (i32, i32) {
+fn next_position(
+    p: &(i32, i32),
+    points: &HashSet<(i32, i32)>,
+    start: Direction,
+) -> Option<(i32, i32)> {
     let mut direction = start;
     let oks = get_neighbor(p).map(|p| !points.contains(&p));
 
@@ -88,40 +92,38 @@ fn next_position(p: (i32, i32), points: &HashSet<(i32, i32)>, start: Direction) 
             let check_positions = direction.positions();
 
             if check_positions.iter().all(|&i| oks[i]) {
-                return direction.update(p);
+                return Some(direction.update(p));
             }
 
             direction = direction.next();
         }
     }
-    p
+    None
 }
 
 fn update_points(points: &mut HashSet<(i32, i32)>, start: Direction) -> bool {
     let new_points = points
         .par_iter()
-        .map(|p| (next_position(*p, points, start.clone()), *p))
+        .filter_map(|p| next_position(p, points, start).map(|new_p| (new_p, p)))
         .collect::<Vec<_>>()
         .iter()
         .fold(
-            HashMap::<(i32, i32), Vec<(i32, i32)>>::new(),
-            |mut acc, (key, value)| {
-                acc.entry(*key).or_default().push(*value);
+            HashMap::<(i32, i32), Option<(i32, i32)>>::new(),
+            |mut acc, &(key, value)| {
+                acc.entry(key)
+                    .and_modify(|e| *e = None)
+                    .or_insert(Some(*value));
                 acc
             },
         );
 
     new_points
         .into_iter()
-        .filter_map(|(new_p, old_ps)| {
-            if old_ps.len() == 1 && old_ps[0] != new_p {
+        .filter_map(|(new_p, old_p)| {
+            old_p.map(|p| {
                 points.insert(new_p);
-                points.remove(&old_ps[0]);
-
-                Some(())
-            } else {
-                None
-            }
+                points.remove(&p);
+            })
         })
         .count()
         != 0
@@ -164,7 +166,7 @@ where
     let mut count = 10;
 
     for _ in 0..count {
-        update_points(&mut points, direction.clone());
+        update_points(&mut points, direction);
 
         direction = direction.next();
     }
@@ -172,7 +174,7 @@ where
 
     let part1 = part1(&points);
 
-    while update_points(&mut points, direction.clone()) {
+    while update_points(&mut points, direction) {
         count += 1;
 
         direction = direction.next();
