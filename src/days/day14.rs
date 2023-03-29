@@ -46,9 +46,10 @@ fn print_hash(verticals: &HashMap<i32, Vec<i32>>, maxy: i32) {
 }
 
 fn get_floor(verticals: &mut HashMap<i32, Vec<i32>>, (x, y): (i32, i32)) -> Option<i32> {
-    let vertical = verticals.get_mut(&x)?;
-
-    vertical.iter().find(|&x| x >= &y).copied()
+    verticals
+        .get_mut(&x)?
+        .iter()
+        .find_map(|&x| if x >= y { Some(x) } else { None })
 }
 
 fn insert_sorted(sorted: &mut Vec<i32>, value: i32) {
@@ -101,9 +102,10 @@ fn add_sand_part2(
 
             if right == y {
                 // no left, no rigth, stay here
-                let vertical = verticals.entry(x).or_default();
-
-                insert_sorted(vertical, y - 1);
+                verticals
+                    .entry(x)
+                    .and_modify(|v| insert_sorted(v, y - 1))
+                    .or_insert(vec![y - 1]);
 
                 return Some(y - 1);
             } else {
@@ -150,9 +152,10 @@ where
     let mut verticals1: HashMap<i32, Vec<i32>> = HashMap::new();
 
     for (x, y) in rocks {
-        let vertical = verticals1.entry(x).or_default();
-
-        vertical.push(y);
+        verticals1
+            .entry(x)
+            .and_modify(|v| v.push(y))
+            .or_insert(vec![y]);
     }
 
     verticals1.values_mut().for_each(|x| x.sort());
