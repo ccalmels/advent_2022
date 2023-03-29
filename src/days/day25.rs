@@ -26,19 +26,18 @@ fn add_snafu(a: &str, b: &str) -> String {
     let (longest, shortest) = if a.len() > b.len() { (a, b) } else { (b, a) };
 
     let mut retenue = 0;
-    let mut ret = vec![];
-
-    for (c1, c2) in longest
+    let mut ret = longest
         .chars()
         .rev()
         .zip(shortest.chars().rev().chain(std::iter::repeat('0')))
-    {
-        let sum = to_value(c1) + to_value(c2) + retenue;
+        .map(|(c1, c2)| {
+            let sum = to_value(c1) + to_value(c2) + retenue;
 
-        retenue = sum.signum() * (sum.abs() + 2) / 5;
+            retenue = sum.signum() * (sum.abs() + 2) / 5;
 
-        ret.push(to_char(sum - retenue * 5));
-    }
+            to_char(sum - retenue * 5)
+        })
+        .collect::<Vec<_>>();
 
     if retenue != 0 {
         ret.push(to_char(retenue));
