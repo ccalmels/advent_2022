@@ -145,7 +145,7 @@ where
         Valve::new(name, rate, neighbors)
     }));
 
-    if valves.len() > 64 {
+    if valves.len() > 8 * std::mem::size_of::<Mask>() {
         panic!("too much valves for Mask");
     }
 
@@ -155,11 +155,7 @@ where
         .enumerate()
         .filter_map(|(i, v)| if v.rate == 0 { None } else { Some(i) })
         .collect::<Vec<_>>();
-    let index_aa = valves
-        .iter()
-        .enumerate()
-        .find_map(|(i, v)| if v.name == "AA" { Some(i) } else { None })
-        .unwrap();
+    let index_aa = valves.iter().position(|v| v.name == "AA").unwrap();
     let volcano = Volcano::new(valves, useful_valves_indexes, distances);
 
     let (_, part1) = *volcano
@@ -172,17 +168,17 @@ where
     let mut part2 = 0;
     let (_, max_for_one) = flows.iter().max_by_key(|(_, f)| f).unwrap();
 
-    for i in 0..flows.len() {
-        let (p_i, flow_i) = &flows[i];
+    for i in 0..flows.len() - 1 {
+        let (p_i, flow_i) = flows[i];
 
         if max_for_one + flow_i < part2 {
             continue;
         }
 
-        for (p_j, flow_j) in flows.iter().skip(i + 1) {
+        for &(p_j, flow_j) in flows.iter().skip(i + 1) {
             let total_flow = flow_i + flow_j;
 
-            if total_flow > part2 && is_disjoint(*p_i, *p_j) {
+            if total_flow > part2 && is_disjoint(p_i, p_j) {
                 part2 = total_flow;
             }
         }
