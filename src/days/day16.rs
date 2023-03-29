@@ -36,10 +36,10 @@ fn is_disjoint(m1: Mask, m2: Mask) -> bool {
 
 // Floyd-Warshall
 fn compute_distances(valves: &Vec<Valve>) -> Vec<Vec<u32>> {
-    let names: HashMap<String, usize> = valves
+    let names: HashMap<&String, usize> = valves
         .iter()
         .enumerate()
-        .map(|(i, v)| (v.name.to_owned(), i))
+        .map(|(i, v)| (&v.name, i))
         .collect();
     let length = valves.len();
     let mut distances = vec![vec![length as u32 + 1; length]; length];
@@ -124,28 +124,26 @@ where
         r"Valve (\w+) has flow rate=(\d+); (?:tunnels lead to valves|tunnel leads to valve) (.*)",
     )
     .unwrap();
-    let valves = lines
-        .map(|line| {
-            let line = line.unwrap();
-            let valve_capture = valve_regex.captures(&line).unwrap();
-            let name = valve_capture.get(1).unwrap().as_str();
-            let rate = valve_capture
-                .get(2)
-                .unwrap()
-                .as_str()
-                .parse::<u32>()
-                .unwrap();
-            let neighbors = valve_capture
-                .get(3)
-                .unwrap()
-                .as_str()
-                .split(", ")
-                .map(String::from)
-                .collect();
+    let valves = Vec::from_iter(lines.map(|line| {
+        let line = line.unwrap();
+        let valve_capture = valve_regex.captures(&line).unwrap();
+        let name = valve_capture.get(1).unwrap().as_str();
+        let rate = valve_capture
+            .get(2)
+            .unwrap()
+            .as_str()
+            .parse::<u32>()
+            .unwrap();
+        let neighbors = valve_capture
+            .get(3)
+            .unwrap()
+            .as_str()
+            .split(", ")
+            .map(String::from)
+            .collect();
 
-            Valve::new(name, rate, neighbors)
-        })
-        .collect::<Vec<_>>();
+        Valve::new(name, rate, neighbors)
+    }));
 
     if valves.len() > 64 {
         panic!("too much valves for Mask");
@@ -167,7 +165,7 @@ where
     let (_, part1) = *volcano
         .dfs(index_aa, 0, 0, 0, 30)
         .iter()
-        .max_by_key(|(_, f)|f)
+        .max_by_key(|(_, f)| f)
         .unwrap();
     let flows = volcano.dfs(index_aa, 0, 0, 0, 26);
 
@@ -181,7 +179,7 @@ where
             continue;
         }
 
-        for (p_j, flow_j) in flows.iter().skip(i+1) {
+        for (p_j, flow_j) in flows.iter().skip(i + 1) {
             let total_flow = flow_i + flow_j;
 
             if total_flow > part2 && is_disjoint(*p_i, *p_j) {
