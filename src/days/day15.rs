@@ -1,6 +1,9 @@
 use rayon::prelude::*;
 use regex::Regex;
-use std::{io::{BufRead, Lines}, cmp::Ordering};
+use std::{
+    cmp::Ordering,
+    io::{BufRead, Lines},
+};
 
 #[derive(Debug)]
 struct Sensor {
@@ -12,7 +15,8 @@ struct Sensor {
 }
 
 impl Sensor {
-    fn new(x: i32, y: i32, bx: i32, by: i32, manhattan: usize) -> Self {
+    fn new(x: i32, y: i32, bx: i32, by: i32) -> Self {
+        let manhattan = (i32::abs(bx - x) + i32::abs(by - y)) as usize;
         Sensor {
             x,
             y,
@@ -40,7 +44,7 @@ impl Sensor {
     }
 }
 
-fn intersection(a: (i32, i32), b: (i32, i32)) -> Option<(i32, i32)> {
+fn intersection(a: &(i32, i32), b: &(i32, i32)) -> Option<(i32, i32)> {
     let size_a = a.1 - a.0 + 1;
     let size_b = b.1 - b.0 + 1;
     let min = i32::min(a.0, b.0);
@@ -55,7 +59,7 @@ fn intersection(a: (i32, i32), b: (i32, i32)) -> Option<(i32, i32)> {
 
 #[test]
 fn check_sensor() {
-    let s = Sensor::new(8, 7, 2, 10, 9);
+    let s = Sensor::new(8, 7, 2, 10);
 
     assert_eq!(s.intercept(-4, false), None);
     assert_eq!(s.intercept(-2, false), Some((8, 8)));
@@ -66,30 +70,30 @@ fn check_sensor() {
     assert_eq!(s.intercept(10, true), Some((2, 14)));
     assert_eq!(s.intercept(17, false), None);
 
-    assert_eq!(intersection((12, 12), (2, 14)), Some((2, 14)));
-    assert_eq!(intersection((2, 14), (12, 12)), Some((2, 14)));
-    assert_eq!(intersection((-2, 2), (2, 4)), Some((-2, 4)));
-    assert_eq!(intersection((2, 4), (-2, 2)), Some((-2, 4)));
-    assert_eq!(intersection((3, 5), (-2, 2)), Some((-2, 5)));
-    assert_eq!(intersection((4, 6), (-2, 2)), None);
+    assert_eq!(intersection(&(12, 12), &(2, 14)), Some((2, 14)));
+    assert_eq!(intersection(&(2, 14), &(12, 12)), Some((2, 14)));
+    assert_eq!(intersection(&(-2, 2), &(2, 4)), Some((-2, 4)));
+    assert_eq!(intersection(&(2, 4), &(-2, 2)), Some((-2, 4)));
+    assert_eq!(intersection(&(3, 5), &(-2, 2)), Some((-2, 5)));
+    assert_eq!(intersection(&(4, 6), &(-2, 2)), None);
 }
 
-fn push_and_merge(list: &mut Vec<(i32, i32)>, range: (i32, i32)) {
+fn push_and_merge(list: &mut Vec<(i32, i32)>, range: &(i32, i32)) {
     for r in list.iter_mut() {
-        let intersection = intersection(range, *r);
+        let intersection = intersection(range, r);
 
         if let Some(intersection) = intersection {
             *r = intersection;
             return;
         }
     }
-    list.push(range);
+    list.push(*range);
 }
 
 fn merge_ranges(mut list: Vec<(i32, i32)>) -> Vec<(i32, i32)> {
     list.sort();
 
-    list.iter().fold(vec![], |mut acc, &r| {
+    list.iter().fold(vec![], |mut acc, r| {
         push_and_merge(&mut acc, r);
         acc
     })
@@ -99,7 +103,7 @@ fn ranges_on_row(
     sensors: &Vec<Sensor>,
     row: i32,
     count_beacon: bool,
-    delim: Option<(i32, i32)>,
+    delim: Option<&(i32, i32)>,
 ) -> Vec<(i32, i32)> {
     let mut ranges = vec![];
 
@@ -113,7 +117,7 @@ fn ranges_on_row(
                     continue;
                 }
             }
-            push_and_merge(&mut ranges, range);
+            push_and_merge(&mut ranges, &range);
         }
     }
 
@@ -125,9 +129,7 @@ where
     T: BufRead,
 {
     let beacon_regex = Regex::new(r"-?\d+").unwrap();
-    let mut sensors = vec![];
-
-    for line in lines {
+    let sensors = Vec::from_iter(lines.map(|line| {
         let line = line.unwrap();
 
         let mut beacon_values = beacon_regex
@@ -139,10 +141,8 @@ where
         let bx = beacon_values.next().unwrap();
         let by = beacon_values.next().unwrap();
 
-        let manhattan = (i32::abs(bx - x) + i32::abs(by - y)) as usize;
-
-        sensors.push(Sensor::new(x, y, bx, by, manhattan));
-    }
+        Sensor::new(x, y, bx, by)
+    }));
 
     let row;
     let size;
@@ -155,13 +155,12 @@ where
         size = 4000000;
     }
 
-    // let part2 = (0..size + 1)
-    //     .into_iter()
-    //     .find_map(|row| {
     let part2 = (0..size + 1)
+        //.into_iter()
+        //.find_map(|row| {
         .into_par_iter()
         .find_map_any(|row| {
-            let ranges = ranges_on_row(&sensors, row, true, Some((0, size)));
+            let ranges = ranges_on_row(&sensors, row, true, Some(&(0, size)));
 
             if ranges.len() == 2 {
                 Some((ranges[0].1 as i64 + 1) * 4000000 + row as i64)
