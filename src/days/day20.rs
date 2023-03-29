@@ -61,25 +61,17 @@ fn mix(indexes: &mut Vec<Elem>, values: &[i64], key: i64) {
 }
 
 fn create_indexes(length: usize) -> Vec<Elem> {
-    let mut indexes = vec![];
+    let mut prevs = Vec::from_iter(0..length);
+    prevs.rotate_right(1);
 
-    for i in 0..length {
-        let (prev, next);
+    let mut nexts = Vec::from_iter(0..length);
+    nexts.rotate_left(1);
 
-        if i == 0 {
-            prev = length - 1;
-        } else {
-            prev = i - 1;
-        }
-        if i == length - 1 {
-            next = 0;
-        } else {
-            next = i + 1;
-        }
-
-        indexes.push(Elem::new(prev, next));
-    }
-    indexes
+    prevs
+        .into_iter()
+        .zip(nexts)
+        .map(|(prev, next)| Elem::new(prev, next))
+        .collect()
 }
 
 fn resolve<T>(lines: Lines<T>) -> (i64, i64)
