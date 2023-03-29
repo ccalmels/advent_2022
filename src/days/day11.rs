@@ -26,6 +26,14 @@ struct Monkey {
     inspects: u64,
 }
 
+fn divise(item: u64, divisible: &(u64, usize, usize)) -> usize {
+    if item % divisible.0 == 0 {
+        divisible.1
+    } else {
+        divisible.2
+    }
+}
+
 impl Monkey {
     fn new(items: Vec<u64>, operation: Operation, divisible: (u64, usize, usize)) -> Self {
         Monkey {
@@ -45,11 +53,7 @@ impl Monkey {
         for item in &self.items {
             let item = reduce(self.operation.compute(*item));
 
-            if item % self.divisible.0 == 0 {
-                throws.push((item, self.divisible.1));
-            } else {
-                throws.push((item, self.divisible.2));
-            }
+            throws.push((item, divise(item, &self.divisible)));
             self.inspects += 1;
         }
 
@@ -158,7 +162,7 @@ where
 
     (
         inspects_1.iter().take(2).product(),
-        inspects_2.iter().take(2).product()
+        inspects_2.iter().take(2).product(),
     )
 }
 
