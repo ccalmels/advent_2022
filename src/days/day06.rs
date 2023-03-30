@@ -1,14 +1,14 @@
 use std::io::{BufRead, Lines};
 
 fn get_index(buf_slice: &[u8]) -> Option<usize> {
-    for (i, c1) in buf_slice.iter().enumerate().rev() {
-        for (j, c2) in buf_slice.iter().take(i).enumerate() {
-            if c1 == c2 {
-                return Some(j + 1);
-            }
-        }
-    }
-    None
+    buf_slice.iter().enumerate().rev().find_map(|(i, c1)| {
+        buf_slice
+            .iter()
+            .take(i)
+            .rev()
+            .position(|c2| c1 == c2)
+            .map(|pos| i - pos)
+    })
 }
 
 fn find_first_index(buffer: &[u8], distincts: usize) -> usize {
