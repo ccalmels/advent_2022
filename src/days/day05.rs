@@ -3,8 +3,8 @@ use std::io::{BufRead, Lines};
 
 #[derive(Clone)]
 struct Crate {
-    part1: Vec<String>,
-    part2: Vec<String>,
+    part1: Vec<char>,
+    part2: Vec<char>,
 }
 
 impl Crate {
@@ -41,8 +41,8 @@ where
             let s = &line[i * 4 + 1..i * 4 + 2];
 
             if s != " " {
-                crates[i].part1.push(s.to_string());
-                crates[i].part2.push(s.to_string());
+                crates[i].part1.push(s.chars().next().unwrap());
+                crates[i].part2.push(s.chars().next().unwrap());
             }
         }
     }
@@ -70,20 +70,22 @@ where
             .unwrap();
 
         // part 1
-        let v: Vec<String> = crates[from - 1].part1.drain(..count).rev().collect();
+        let v: Vec<char> = crates[from - 1].part1.drain(..count).rev().collect();
 
         crates[to - 1].part1.splice(..0, v);
 
         // part 2
-        let v: Vec<String> = crates[from - 1].part2.drain(..count).collect();
+        let v: Vec<char> = crates[from - 1].part2.drain(..count).collect();
 
         crates[to - 1].part2.splice(..0, v);
     }
 
     crates
         .iter()
-        .fold((String::from(""), String::from("")), |s, c| {
-            (s.0 + &c.part1[0], s.1 + &c.part2[0])
+        .fold((String::from(""), String::from("")), |mut s, c| {
+            s.0.push(c.part1[0]);
+            s.1.push(c.part2[0]);
+            s
         })
 }
 
