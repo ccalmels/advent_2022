@@ -1,6 +1,5 @@
 use std::cmp::Ordering;
 use std::io::{BufRead, Lines};
-use std::iter::zip;
 use std::num::ParseIntError;
 use std::str::FromStr;
 
@@ -32,7 +31,10 @@ impl Packet {
 impl PartialEq for Packet {
     fn eq(&self, other: &Self) -> bool {
         if self.list.len() == other.list.len() {
-            zip(&self.list, &other.list).all(|(a, b)| a.eq(b))
+            self.list
+                .iter()
+                .zip(other.list.iter())
+                .all(|(a, b)| a.eq(b))
         } else {
             false
         }
@@ -41,14 +43,19 @@ impl PartialEq for Packet {
 
 impl Ord for Packet {
     fn cmp(&self, other: &Self) -> Ordering {
-        for (a, b) in zip(&self.list, &other.list) {
-            let cmp = a.cmp(b);
+        self.list
+            .iter()
+            .zip(other.list.iter())
+            .find_map(|(a, b)| {
+                let cmp = a.cmp(b);
 
-            if cmp != std::cmp::Ordering::Equal {
-                return cmp;
-            }
-        }
-        self.list.len().cmp(&other.list.len())
+                if cmp != std::cmp::Ordering::Equal {
+                    Some(cmp)
+                } else {
+                    None
+                }
+            })
+            .unwrap_or(self.list.len().cmp(&other.list.len()))
     }
 }
 
@@ -96,14 +103,14 @@ impl Ord for Item {
 
 struct Cursor<'a> {
     cursor: usize,
-    chars: &'a [char],
+    chars: &'a [u8],
 }
 
 #[derive(Debug, PartialEq, Eq)]
 struct CursorError;
 
 impl<'a> Cursor<'a> {
-    fn new(chars: &'a [char]) -> Self {
+    fn new(chars: &'a [u8]) -> Self {
         Cursor { cursor: 0, chars }
     }
 
@@ -111,7 +118,7 @@ impl<'a> Cursor<'a> {
         self.cursor < self.chars.len()
     }
 
-    fn get(&self) -> Result<char, CursorError> {
+    fn get(&self) -> Result<u8, CursorError> {
         if self.has_remaining() {
             Ok(self.chars[self.cursor])
         } else {
@@ -123,7 +130,7 @@ impl<'a> Cursor<'a> {
         self.cursor += 1;
     }
 
-    fn next(&mut self) -> Result<char, CursorError> {
+    fn next(&mut self) -> Result<u8, CursorError> {
         self.consume();
         self.get()
     }
@@ -139,11 +146,11 @@ fn get_packet(cursor: &mut Cursor) -> Result<Packet, ParsePacketError> {
     let mut list = vec![];
     let mut c = cursor.get()?;
 
-    while c != ']' {
+    while c != b']' {
         list.push(get_item(cursor)?);
         c = cursor.get()?;
 
-        if c == ',' {
+        if c == b',' {
             c = cursor.next()?;
         }
     }
@@ -158,18 +165,25 @@ impl From<ParseIntError> for ParsePacketError {
 }
 
 fn get_item(cursor: &mut Cursor) -> Result<Item, ParsePacketError> {
-    let mut value = String::from("");
     let mut c = cursor.get()?;
 
-    if c == '[' {
+    if c == b'[' {
         cursor.next()?;
         Ok(Item::Packet(get_packet(cursor)?))
     } else {
-        while ![',', ']'].contains(&c) {
-            value.push(c);
+        let begin = cursor.cursor;
+
+        while ![b',', b']'].contains(&c) {
             c = cursor.next()?;
         }
-        Ok(Item::Value(value.parse::<usize>()?))
+
+        let end = cursor.cursor;
+
+        Ok(Item::Value(
+            std::str::from_utf8(&cursor.chars[begin..end])
+                .unwrap()
+                .parse::<usize>()?,
+        ))
     }
 }
 
@@ -177,10 +191,9 @@ impl FromStr for Packet {
     type Err = ParsePacketError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let chars = s.chars().collect::<Vec<_>>();
-        let mut cursor = Cursor::new(&chars);
+        let mut cursor = Cursor::new(s.as_bytes());
 
-        if cursor.get()? != '[' {
+        if cursor.get()? != b'[' {
             Err(ParsePacketError::NoLeftBracket)
         } else {
             cursor.next()?;
