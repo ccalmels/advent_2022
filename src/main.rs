@@ -20,9 +20,5 @@ fn main() {
             .unwrap();
     }
 
-    if args.days.is_empty() {
-        advent_2022::resolve_all();
-    } else {
-        args.days.iter().for_each(|&d| advent_2022::resolve_one(d));
-    }
+    advent_2022::resolve(&args.days);
 }

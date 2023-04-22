@@ -70,7 +70,7 @@ where
     Ok(io::BufReader::new(file).lines())
 }
 
-pub fn resolve_all() {
+fn resolve_all() {
     let mut days: Vec<&'static Day> = inventory::iter::<Day>.into_iter().collect();
 
     days.sort_unstable();
@@ -78,12 +78,26 @@ pub fn resolve_all() {
     days.iter().for_each(|d| d.print());
 }
 
-pub fn resolve_one(day_number: u32) {
+fn resolve_one(day_number: u32) {
     inventory::iter::<Day>
         .into_iter()
         .find(|d| d.parse_number() == day_number)
         .unwrap()
         .print();
+}
+
+pub fn resolve(days: &[u32]) {
+    let start = Instant::now();
+
+    if days.is_empty() {
+        resolve_all();
+    } else {
+        days.iter().for_each(|&d| resolve_one(d));
+    }
+
+    let duration = start.elapsed();
+
+    println!("All done in {duration:?}");
 }
 
 inventory::collect!(Day);
