@@ -45,11 +45,11 @@ fn print(points: &HashSet<(i32, i32)>) {
     let mut min = *iter.next().unwrap();
     let mut max = min;
 
-    for (x, y) in iter {
-        min.0 = i32::min(min.0, *x);
-        min.1 = i32::min(min.1, *y);
-        max.0 = i32::max(max.0, *x);
-        max.1 = i32::max(max.1, *y);
+    for &(x, y) in iter {
+        min.0 = i32::min(min.0, x);
+        min.1 = i32::min(min.1, y);
+        max.0 = i32::max(max.0, x);
+        max.1 = i32::max(max.1, y);
     }
 
     println!("min: {min:?}");
@@ -134,11 +134,11 @@ fn part1(points: &HashSet<(i32, i32)>) -> i32 {
     let mut min = *iter.next().unwrap();
     let mut max = min;
 
-    for (x, y) in iter {
-        min.0 = i32::min(min.0, *x);
-        min.1 = i32::min(min.1, *y);
-        max.0 = i32::max(max.0, *x);
-        max.1 = i32::max(max.1, *y);
+    for &(x, y) in iter {
+        min.0 = i32::min(min.0, x);
+        min.1 = i32::min(min.1, y);
+        max.0 = i32::max(max.0, x);
+        max.1 = i32::max(max.1, y);
     }
 
     (1 + max.1 - min.1) * (1 + max.0 - min.0) - points.len() as i32

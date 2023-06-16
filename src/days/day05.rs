@@ -16,13 +16,12 @@ impl Crate {
     }
 }
 
-fn resolve<T>(lines: Lines<T>) -> (String, String)
+fn resolve<T>(mut lines: Lines<T>) -> (String, String)
 where
     T: BufRead,
 {
     let move_regex = Regex::new(r"^move (\d+) from (\d+) to (\d+)$").unwrap();
     let mut crates: Vec<Crate> = vec![];
-    let mut lines = lines;
 
     for line in lines.by_ref() {
         let line = line.unwrap();
