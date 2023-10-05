@@ -55,9 +55,10 @@ impl Ord for Day {
         self.day_filename.cmp(other.day_filename)
     }
 }
+
 impl PartialOrd for Day {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        self.day_filename.partial_cmp(other.day_filename)
+        Some(self.cmp(other))
     }
 }
 
